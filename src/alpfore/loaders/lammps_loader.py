@@ -1,25 +1,43 @@
-import mdtraj as md
-from alpfore.core.simulation import BaseSimulation
+# src/alpfore/simulations/lammps_loader.py
+from pathlib import Path
+from typing import Union
 
-class LAMMPSDumpLoader(TrajPrepMixIn, BaseSimulation):
+import mdtraj as md
+
+from alpfore.core.simulation import BaseLoader, Trajectory
+from alpfore.trajectory.adapters import MDTrajAdapter
+
+class LAMMPSDumpLoader(BaseLoader):
     """
-    Load an existing LAMMPS trajectory
+    Load an existing LAMMPS trajectory and present it as a Trajectory object.
 
     Parameters
     ----------
-    dump_path : str | Path          Path to dump.lammpstrj (or .xtc)
-    top_path  : str | Path          Path to topology (PSF/PDB/etc.)
-    stride    : int                 Keep every `stride`‑th frame
-    n_equil   : int                 Skip first n_equil frames
+    run_dir : Path-like
+        Directory that contains `dump.lammpstrj` and `topology.pdb`.
+    stride : int
+        Keep every `stride`-th frame.
+    n_equil : int
+        Drop the first `n_equil` frames after loading.
     """
 
-    def __init__(self, dump_path, top_path, stride=1, n_equil=0):
-        self.dump_path, self.top_path = dump_path, top_path
-        self.stride, self.n_equil = stride, n_equil
+    def __init__(
+        self,
+        trj_path: Union[str, Path],
+	struct_path: Union[str, Path],
+        stride: int = 1,
+        n_equil: int = 0,
+    ):
+        self.trj_path = Path(trj_path)
+	self.struct_path = Path(struct_path)
+        self.stride = stride
+        self.n_equil = n_equil
 
-    def run(self):
-        traj = md.load(self.dump_path, top=self.top_path, stride=self.stride)
+    def run(self) -> Trajectory:
+        dump = self.trj_path 
+        top  = self.struct_path
+        traj = md.load(dump, top=top, stride=self.stride)
         if self.n_equil:
-            traj = traj[self.n_equil:]          # mdtraj slice view
+            traj = traj[self.n_equil:]      # MDTraj slice view
         return MDTrajAdapter(traj)
 
