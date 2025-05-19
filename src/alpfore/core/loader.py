@@ -12,8 +12,11 @@ Concrete implementations belong in `alpfore.loaders.*`.
 
 from __future__ import annotations  # allows "Trajectory" forward reference
 import abc
-from typing import Protocol
 
+try:
+    from typing import Protocol          # Python 3.8+
+except ImportError:
+    from typing_extensions import Protocol  # Python 3.7 fallback
 
 # --------------------------------------------------------------------------- #
 # A minimal typing contract for whatever object your simulations return
