@@ -4,8 +4,8 @@ from typing import Union
 
 import mdtraj as md
 
-from alpfore.core.simulation import BaseLoader, Trajectory
-from alpfore.trajectory.adapters import MDTrajAdapter
+from alpfore.core.loader import BaseLoader, Trajectory
+from alpfore.trajectories.adapters import MDTrajAdapter
 
 class LAMMPSDumpLoader(BaseLoader):
     """
@@ -24,14 +24,16 @@ class LAMMPSDumpLoader(BaseLoader):
     def __init__(
         self,
         trj_path: Union[str, Path],
-	struct_path: Union[str, Path],
+        struct_path: Union[str, Path],
         stride: int = 1,
         n_equil: int = 0,
+        features: np.ndarray
     ):
         self.trj_path = Path(trj_path)
-	self.struct_path = Path(struct_path)
+        self.struct_path = Path(struct_path)
         self.stride = stride
         self.n_equil = n_equil
+        self.features = features
 
     def run(self) -> Trajectory:
         dump = self.trj_path 
@@ -39,5 +41,6 @@ class LAMMPSDumpLoader(BaseLoader):
         traj = md.load(dump, top=top, stride=self.stride)
         if self.n_equil:
             traj = traj[self.n_equil:]      # MDTraj slice view
-        return MDTrajAdapter(traj)
+        return ConstantFeatureAdapter(traj, self.features)
+
 
