@@ -1,9 +1,9 @@
 {
   "seq_vocab": "TAØ",
   "scales": {
-    "ssl":    { "min": 6,  "max": 20 },
-    "lsl":    { "min": 14, "max": 40 },
-    "sgd":    { "min": 4,  "max": 16 },
+    "ssl":    { "min": 5,  "max": 45 },
+    "lsl":    { "min": 50, "max": 90 },
+    "sgd":    { "min": 30,  "max": 50 },
     "seqlen": { "min": 4,  "max": 12 }
   }
 }
