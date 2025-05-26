@@ -21,7 +21,7 @@ class SystemEncoder:
     # ---- helpers ----------------------------------------------------- #
     def _scale(self, key: str, val: float) -> float:
         rng = self.scales[key]["max"] - self.scales[key]["min"]
-        return np.round((val - self.scales[key]["min"]) / rng, 2)
+        return np.round((val - self.scales[key]["min"]) / rng, 3)
 
 # inside SystemEncoder
     def _one_hot_seq(self, seq: str, width: int = 12) -> np.ndarray:
