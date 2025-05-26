@@ -7,7 +7,7 @@ import mdtraj as md
 from pathlib import Path
 from typing import Union, Sequence, Tuple
 
-from alpfore.core.evaluation import BaseEvaluator, Trajectory
+from alpfore.core.evaluator import BaseEvaluator, Trajectory
 from alpfore.evaluations.dna_hybridization import DNAHybridizationEvaluator
 
 
