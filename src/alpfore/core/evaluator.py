@@ -16,7 +16,7 @@ Concrete implementations belong in ``alpfore.evaluations.*``.
 from __future__ import annotations
 
 import abc
-from typing import Protocol, TYPE_CHECKING
+from typing_extensions import Protocol, TYPE_CHECKING
 
 if TYPE_CHECKING:           # avoid importing NumPy at runtime for speed
     import numpy as np
