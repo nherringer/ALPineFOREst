@@ -20,7 +20,7 @@ from typing_extensions import Protocol, TYPE_CHECKING
 
 if TYPE_CHECKING:           # avoid importing NumPy at runtime for speed
     import numpy as np
-    from alpfore.core.simulation import Trajectory
+    from alpfore.core.loader import Trajectory
 
 
 # --------------------------------------------------------------------------- #
