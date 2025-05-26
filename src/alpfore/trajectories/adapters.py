@@ -11,7 +11,7 @@ small interface expected by ALPine FOREst:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing_extensions import TYPE_CHECKING
 
 import numpy as np
 
