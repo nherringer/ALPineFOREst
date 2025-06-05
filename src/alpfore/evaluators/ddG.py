@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Union, Sequence, Tuple
 
 from alpfore.core.evaluator import BaseEvaluator, Trajectory
-from alpfore.evaluations.dna_hybridization import DNAHybridizationEvaluator
+from alpfore.evaluators.dna_hybridization import DNAHybridizationEvaluator
 
 
 # --------------------------------------------------------------------------- #
@@ -79,9 +79,9 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
         DGs, SEMs = [], []
 
         for T in self.temps:
-            logw = (colvar["bias"] + (1 - self.t0 / T) * colvar["energy"]) * T
-            fes = _calc_fes_1d(grid, self.bandwidth, colvar["com"].values, logw.values)
-            fes += 2 * np.log(grid) * T
+            logw = (colvar["bias"] + (1 - self.t0 / T) * colvar["energy"]) * self.t0
+            fes = _calc_fes_1d(grid, self.bandwidth, colvar["com"].values, logw.values)/T
+            fes += 2 * np.log(grid)/T
 
             # 5-block SEM omitted for brevity – keep previous logic...
             # sem = ...
