@@ -44,65 +44,6 @@ class LAMMPSDumpLoader(BaseLoader):
         if self.n_equil:
             traj = traj[self.n_equil:]      # MDTraj slice view
         return SystemFeatureAdapter(traj, self.features)
-
-    def decode(self, X: np.ndarray) -> np.ndarray:
-        """
-        Inverts `encode`.
-
-        Parameters
-        ----------
-        X : array_like, shape (n, 40) or (40,)
-            4 scaled meta-features  +  36 one-hot bits (12 × 3).
-
-        Returns
-        -------
-        ndarray, shape (n, 4)  (dtype=object)
-            Columns: sequence (str), ssl (int), lsl (int), sgd (int)
-        """
-        # ---------- normalise shape ----------
-        X = np.asarray(X, dtype=float)
-        if X.ndim == 1:
-            X = X.reshape(1, -1)
-        if X.shape[1] != 40:
-            raise ValueError("decode expects 40 columns")
-
-        meta_scaled, one_hot = X[:, :4], X[:, 4:]
-
-        # ---------- un-scale meta ----------
-        rng = self.scalers  # config["scales"]
-        def _unscale(key, v):
-            lo, hi = rng[key]["min"], rng[key]["max"]
-            return v * (hi - lo) + lo
-
-        ssl    = _unscale("ssl",    meta_scaled[:, 0]).round().astype(int)
-        lsl    = _unscale("lsl",    meta_scaled[:, 1]).round().astype(int)
-        sgd    = _unscale("sgd",    meta_scaled[:, 2]).round().astype(int)
-        L_true = _unscale("seqlen", meta_scaled[:, 3]).round().astype(int)  # 4–12
-
-        # ---------- decode sequences ----------
-        vocab = np.array(list("TAØ"))           # 0→T, 1→A, 2→Ø
-        oh = one_hot.reshape(X.shape[0], 12, 3)
-
-        seqs = []
-        for row_oh, L in zip(oh, L_true):
-            idx  = row_oh.argmax(axis=1)        # (12,)
-            chars = vocab[idx]                  # array(['T','Ø','A',...])
-            # keep only non-padding symbols
-            seq  = "".join(c for c in chars if c != "Ø")
-            if len(seq) != L:                   # guard against mismatch
-                raise ValueError(
-                    f"Decoded length {len(seq)} ≠ expected {L}. "
-                    "Ensure encode/decode use identical padding."
-                )
-            seqs.append(seq)
-
-        # ---------- assemble object array ----------
-        out = np.empty((X.shape[0], 4), dtype=object)
-        out[:, 0] = seqs
-        out[:, 1] = ssl
-        out[:, 2] = lsl
-        out[:, 3] = sgd
-        return out
     
     @classmethod
     def from_multi_dump(
