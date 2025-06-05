@@ -4,8 +4,7 @@ from __future__ import annotations
 import numpy as np
 import mdtraj as md
 
-from alpfore.core.evaluator import BaseEvaluator
-from alpfore.core.loader import Trajectory
+from core import BaseEvaluator, Trajectory
 
 
 class CGDNAHybridizationEvaluator(BaseEvaluator):

@@ -58,10 +58,10 @@ class SystemEncoder:
     # ---- public API -------------------------------------------------- #
     def encode(
         self,
+        seq: str,
         ssl: int,
         lsl: int,
         sgd: int,
-        seq: str,
     ) -> np.ndarray:
         meta = np.array(
             [
