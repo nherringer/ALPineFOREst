@@ -4,10 +4,10 @@ version = "0.1.0"
 description = "Active Learning Pipeline For Optimal Ranking Estimation"
 authors = ["nherringer <nherringer@uchicago.edu>"]
 readme = "README.md"
+packages = [{ include = "alpfore", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-
 
 [build-system]
 requires = ["poetry-core"]
