@@ -8,9 +8,12 @@ __version__ = "0.1.0"
 import pkgutil
 import importlib
 import pathlib
+import sys
 
-# Automatically discover and import all submodules under alpfore
-__path__ = __path__  # needed for pkgutil to work
 for loader, module_name, is_pkg in pkgutil.walk_packages(__path__, prefix=__name__ + "."):
-    importlib.import_module(module_name)
+    module = importlib.import_module(module_name)
+    # attach the top-level module to the alpfore namespace
+    name_parts = module_name.split(".")
+    if len(name_parts) == 2:  # e.g., alpfore.encoder
+        setattr(sys.modules[__name__], name_parts[1], module)
 

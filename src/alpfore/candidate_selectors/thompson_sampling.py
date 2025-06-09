@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from alpfore.core.selection import BaseSelector
+from alpfore.core.candidate_selector import BaseSelector
 from alpfore.core.model import BaseModel
 
 

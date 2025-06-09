@@ -1,7 +1,19 @@
 from __future__ import annotations
 
 import torch
-from botorch.fit import fit_gpytorch_mll
+from gpytorch.mlls.marginal_log_likelihood import MarginalLogLikelihood
+from torch.optim import Adam
+
+def fit_gpytorch_mll(mll: MarginalLogLikelihood, bounds=None, track_iterations=False, **kwargs):
+    mll.train()
+    optimizer = Adam(mll.parameters(), lr=0.1)
+    for _ in range(50):
+        optimizer.zero_grad()
+        output = -mll()
+        output.backward()
+        optimizer.step()
+    mll.eval()
+
 from botorch.models import FixedNoiseGP
 from botorch.models.transforms import Standardize
 from botorch import settings as bts
