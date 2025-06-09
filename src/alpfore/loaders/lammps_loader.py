@@ -1,7 +1,6 @@
 # src/alpfore/simulations/lammps_loader.py
 from pathlib import Path
-from typing import Union
-from typing import List
+from typing import Union, Optional, List
 import numpy as np
 import mdtraj as md
 import glob
@@ -30,20 +29,23 @@ class LAMMPSDumpLoader(BaseLoader):
         struct_path: Union[str, Path],
         features: np.ndarray,
         stride: int = 1,
-        n_equil: int = 0
+        n_equil_drop: int = 0,
+        cand_list: Optional[List[int]] = None
     ):
         self.trj_path = Path(trj_path)
         self.struct_path = Path(struct_path)
         self.stride = stride
-        self.n_equil = n_equil
+        self.n_equil_drop = n_equil_drop
         self.features = features
+        self.cand_list = cand_list if cand_list is not None else []
+
 
     def run(self) -> Trajectory:
         dump = self.trj_path 
         top  = self.struct_path
         traj = md.load(dump, top=top, stride=self.stride)
-        if self.n_equil:
-            traj = traj[self.n_equil:]      # MDTraj slice view
+        if self.n_equil_drop:
+            traj = traj[self.n_equil_drop:]      # MDTraj slice view
         return SystemFeatureAdapter(traj, self.features)
     
     @classmethod
@@ -53,7 +55,7 @@ class LAMMPSDumpLoader(BaseLoader):
         struct_path: Union[str, Path],
         features: np.ndarray,
         stride: int = 1,
-        n_equil: int = 0
+        n_equil_drop: int = 0
     ) -> Trajectory:
         """
         Alternate constructor to concatenate multiple dump files.
@@ -77,7 +79,7 @@ class LAMMPSDumpLoader(BaseLoader):
 
         traj = md.load(traj_paths, top=struct_path, stride=stride)
         if n_equil:
-            traj = traj[n_equil:]
+            traj = traj[n_equil_drop:]
 
         return SystemFeatureAdapter(traj, features)
 
@@ -89,7 +91,7 @@ class LAMMPSDumpLoader(BaseLoader):
         struct_pattern: str,
         traj_pattern: str,
         stride: int = 1,
-        n_equil: int = 0
+        n_equil_drop: int = 0
     ) -> List[Trajectory]:
         """
         Load and process all candidate systems in a list using their encoded features.
@@ -116,21 +118,22 @@ class LAMMPSDumpLoader(BaseLoader):
         List[Trajectory]
             One trajectory per candidate system.
         """
-        trajs = []
+        cand_traj_list = []
 
         for seq, ssl, lsl, sgd in candidate_list:
             features = encoder.encode(seq, ssl, lsl, sgd)
 
             struct_path = struct_pattern.format(seq=seq, ssl=ssl, lsl=lsl, sgd=sgd)
-            traj_path   = traj_pattern.format(seq=seq, ssl=ssl, lsl=lsl, sgd=sgd)
+            traj_pattern   = traj_pattern.format(seq=seq, ssl=ssl, lsl=lsl, sgd=sgd)
 
-            traj = cls.from_multi_dump(
-                traj_pattern=traj_path,
+            cand_traj_list = cls.from_multi_dump(
+                traj_pattern=traj_pattern,
                 struct_path=struct_path,
                 features=features,
                 stride=stride,
-                n_equil=n_equil
+                n_equil_drop=n_equil_drop
             )
-            trajs.append(traj)
+            cand_traj_list.append(cand_traj_list)
+
 
         return trajs
