@@ -1,4 +1,4 @@
 __all__ = ["BaseEvaluator", "Trajectory"]
 
-from evaluators import BaseEvaluator
-from loaders import Trajectory
+from alpfore.core.evaluator import BaseEvaluator
+from alpfore.core.loader import Trajectory

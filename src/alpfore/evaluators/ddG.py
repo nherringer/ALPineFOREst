@@ -7,8 +7,9 @@ import mdtraj as md
 from pathlib import Path
 from typing import Union, Sequence, Tuple
 
-from alpfore.core.evaluator import BaseEvaluator, Trajectory
-from alpfore.evaluators.dna_hybridization import DNAHybridizationEvaluator
+from alpfore.core.evaluator import BaseEvaluator
+from alpfore.core.loader import Trajectory
+from alpfore.evaluators.dna_hybridization import CGDNAHybridizationEvaluator
 
 
 # --------------------------------------------------------------------------- #
@@ -37,7 +38,7 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
         self,
         system_features: Tuple[float, ...],    # numeric key
         run_dir: Union[str, Path],
-        hybrid_eval: DNAHybridizationEvaluator,
+        hybrid_eval: CGDNAHybridizationEvaluator,
         walker_ids: Sequence[int] = (1,),
         bandwidth: float = 1.0,
         ratio_cutoff: float = 0.8,

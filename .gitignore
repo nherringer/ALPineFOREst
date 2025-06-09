@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Jupyter Notebook files (optional — only ignore if you don’t want to track any)
+*.ipynb
+
+# Numpy binary files
+*.npy
+*.npz
+
+# OS / Editor junk
+.DS_Store
+*.swp
+*.swo
+*.tmp
+
+# Python virtual environments
+.env/
+.venv/
+env/
+venv/
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs and outputs
+*.log
+
+# Custom: simulation output directories (adjust as needed)
+*.lammpstrj
+*.traj
+

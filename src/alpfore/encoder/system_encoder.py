@@ -99,7 +99,7 @@ class SystemEncoder:
         meta_scaled, one_hot = X[:, :4], X[:, 4:]
 
         # ---------- un-scale meta ----------
-        rng = self.scalers  # config["scales"]
+        rng = self.scales  # config["scales"]
         def _unscale(key, v):
             lo, hi = rng[key]["min"], rng[key]["max"]
             return v * (hi - lo) + lo

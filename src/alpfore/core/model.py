@@ -11,7 +11,8 @@ Concrete implementations belong in ``alpfore.models.*``.
 from __future__ import annotations
 
 import abc
-from typing_extensions import Protocol, Tuple, TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING
+from typing_extensions import Protocol
 
 if TYPE_CHECKING:
     import numpy as np

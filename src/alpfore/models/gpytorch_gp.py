@@ -1,4 +1,5 @@
-from .kernels import TanimotoRBFKernel
+from alpfore.models.kernels import TanimotoRBFKernel
+from alpfore.core.model import BaseModel
 import gpytorch
 
 class GPyTorchGP(BaseModel):

@@ -1,6 +1,7 @@
 # src/alpfore/simulations/lammps_loader.py
 from pathlib import Path
 from typing import Union
+from typing import List
 import numpy as np
 import mdtraj as md
 import glob
