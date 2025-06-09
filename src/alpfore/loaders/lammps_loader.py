@@ -19,8 +19,8 @@ class LAMMPSDumpLoader(BaseLoader):
         Directory that contains `dump.lammpstrj` and `topology.pdb`.
     stride : int
         Keep every `stride`-th frame.
-    n_equil : int
-        Drop the first `n_equil` frames after loading.
+    n_equil_drop : int
+        Drop the first `n_equil_drop` frames after loading.
     """
 
     def __init__(
@@ -70,15 +70,15 @@ class LAMMPSDumpLoader(BaseLoader):
             Feature array corresponding to all frames (or placeholder if computed later).
         stride : int
             Keep every `stride`-th frame from concatenated trajectories.
-        n_equil : int
-            Drop the first `n_equil` frames after loading.
+        n_equil_drop : int
+            Drop the first `n_equil_drop` frames after loading.
         """
         traj_paths = sorted(glob.glob(str(traj_pattern)))
         if not traj_paths:
             raise FileNotFoundError(f"No trajectories matching pattern {traj_pattern}")
 
         traj = md.load(traj_paths, top=struct_path, stride=stride)
-        if n_equil:
+        if n_equil_drop:
             traj = traj[n_equil_drop:]
 
         return SystemFeatureAdapter(traj, features)
@@ -110,7 +110,7 @@ class LAMMPSDumpLoader(BaseLoader):
             Example: '../.../{seq}/ssl{ssl}_lsl{lsl}_lgd1_sgd{sgd}/prod*.lammpstrj'
         stride : int
             Stride applied to all trajectories.
-        n_equil : int
+        n_equil_drop : int
             Number of equilibration frames to drop.
 
         Returns
@@ -126,14 +126,14 @@ class LAMMPSDumpLoader(BaseLoader):
             struct_path = struct_pattern.format(seq=seq, ssl=ssl, lsl=lsl, sgd=sgd)
             traj_pattern   = traj_pattern.format(seq=seq, ssl=ssl, lsl=lsl, sgd=sgd)
 
-            cand_traj_list = cls.from_multi_dump(
+            traj = cls.from_multi_dump(
                 traj_pattern=traj_pattern,
                 struct_path=struct_path,
                 features=features,
                 stride=stride,
                 n_equil_drop=n_equil_drop
             )
-            cand_traj_list.append(cand_traj_list)
+            cand_traj_list.append(traj)
 
 
-        return trajs
+        return cand_traj_list
