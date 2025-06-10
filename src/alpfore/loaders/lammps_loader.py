@@ -91,49 +91,34 @@ class LAMMPSDumpLoader(BaseLoader):
         struct_pattern: str,
         traj_pattern: str,
         stride: int = 1,
-        n_equil_drop: int = 0
-    ) -> List[Trajectory]:
-        """
-        Load and process all candidate systems in a list using their encoded features.
+        n_equil_drop: int = 0,
+        use_parallel: bool = False,
+        n_jobs: int = -1,
+    ):
+        try:
+            from joblib import Parallel, delayed
+            joblib_available = True
+        except ImportError:
+            joblib_available = False
+            use_parallel = False  # gracefully degrade to sequential
 
-        Parameters
-        ----------
-        candidate_list : list of (seq, ssl, lsl, sgd)
-            Each tuple describes one system.
-        encoder : SystemEncoder
-            Object used to encode (seq, ssl, lsl, sgd) into numeric features.
-        struct_pattern : str
-            Format string with placeholders for {seq}, {ssl}, {lsl}, {sgd}.
-            Example: '../.../{seq}/ssl{ssl}_lsl{lsl}_lgd1_sgd{sgd}/topology.pdb'
-        traj_pattern : str
-            Format string with placeholders for {seq}, {ssl}, {lsl}, {sgd}.
-            Example: '../.../{seq}/ssl{ssl}_lsl{lsl}_lgd1_sgd{sgd}/prod*.lammpstrj'
-        stride : int
-            Stride applied to all trajectories.
-        n_equil_drop : int
-            Number of equilibration frames to drop.
-
-        Returns
-        -------
-        List[Trajectory]
-            One trajectory per candidate system.
-        """
-        cand_traj_list = []
-
-        for seq, ssl, lsl, sgd in candidate_list:
+        def load_one(seq, ssl, lsl, sgd):
             features = encoder.encode(seq, ssl, lsl, sgd)
-
-            struct_path = struct_pattern.format(seq=seq, ssl=ssl, lsl=lsl, sgd=sgd)
-            traj_pattern   = traj_pattern.format(seq=seq, ssl=ssl, lsl=lsl, sgd=sgd)
-
-            traj = cls.from_multi_dump(
-                traj_pattern=traj_pattern,
-                struct_path=struct_path,
+            struct_path_str = struct_pattern.format(seq=seq, ssl=ssl, lsl=lsl, sgd=sgd)
+            traj_pattern_str = traj_pattern.format(seq=seq, ssl=ssl, lsl=lsl, sgd=sgd)
+            return cls.from_multi_dump(
+                traj_pattern=traj_pattern_str,
+                struct_path=struct_path_str,
                 features=features,
                 stride=stride,
                 n_equil_drop=n_equil_drop
             )
-            cand_traj_list.append(traj)
 
-
-        return cand_traj_list
+        if use_parallel and joblib_available:
+            results = Parallel(n_jobs=n_jobs)(
+                delayed(load_one)(seq, ssl, lsl, sgd) for (seq, ssl, lsl, sgd) in candidate_list
+            )
+            yield from results
+        else:
+            for seq, ssl, lsl, sgd in candidate_list:
+                yield load_one(seq, ssl, lsl, sgd)
