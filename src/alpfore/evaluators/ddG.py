@@ -57,7 +57,7 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
 
     # ------------------------------------------------------------------ #
     def evaluate(self, traj: Trajectory) -> np.ndarray:
-        md_t = traj.mdtraj                       # grab the raw MDTraj
+        traj = traj.mdtraj                       # grab the raw MDTraj
 
         # ---- ratio ≥ 0.8 region via hybrid evaluator ------------------
         counts = self.hybrid_eval.evaluate(traj)
