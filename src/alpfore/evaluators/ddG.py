@@ -52,7 +52,7 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
 
         self.results: dict[Tuple[float, ...], Tuple[float, float]] = {}
 
-        self.temps = np.array([0.15, 0.16, 0.17, 0.20, 0.21, 0.25])
+        self.temps = np.array([0.17, 0.20])
         self.t0 = 0.25
 
     # ------------------------------------------------------------------ #
@@ -89,8 +89,8 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
             # derive ddG/sem per T ...
 
         # --- final combination (wide) ----------------------------------
-        ddg   = DGs[0] - DGs[3]
-        sem   = np.sqrt(SEMs[0]**2 + SEMs[3]**2)
+        ddg   = DGs[0] - DGs[1]
+        sem   = np.sqrt(SEMs[0]**2 + SEMs[1]**2)
 
         self.results[self.key] = (ddg, sem)
 
