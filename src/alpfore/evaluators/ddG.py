@@ -38,14 +38,14 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
         self,
         system_features: Tuple[float, ...],    # numeric key
         run_dir: Union[str, Path],
-        hybrid_eval: CGDNAHybridizationEvaluator,
+        ratios: np.ndarray = None,
         walker_ids: Sequence[int] = (1,),
         bandwidth: float = 1.0,
         ratio_cutoff: float = 0.8,
     ):
         self.key = tuple(system_features)      # immutable, hashable
         self.run_dir = Path(run_dir)
-        self.hybrid_eval = hybrid_eval
+        self.ratios = ratios if ratios is not None else np.array([])
         self.walker_ids = walker_ids
         self.bandwidth = bandwidth
         self.ratio_cutoff = ratio_cutoff
@@ -56,13 +56,9 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
         self.t0 = 0.25
 
     # ------------------------------------------------------------------ #
-    def evaluate(self, traj: Trajectory) -> np.ndarray:
-        md_t: md.Trajectory = traj._traj  # underlying MDTraj object                       # grab the raw MDTraj
+    def evaluate(self, traj: Trajectory, ratios: np.ndarray) -> np.ndarray:
 
-        # ---- ratio ≥ 0.8 region via hybrid evaluator ------------------
-        counts = self.hybrid_eval.evaluate(md_t)
-        ratios = counts[:, 0] / counts.sum(axis=1)
-        cv_80 = traj.frame_descriptors()[ratios >= self.ratio_cutoff][:, 0]
+        cv_80 = traj[ratios >= self.ratio_cutoff]
         ss_80leg = cv_80.min() if cv_80.size else 0.0
 
         # ---- load COLVAR data for this run directory ------------------
@@ -95,5 +91,5 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
         self.results[self.key] = (ddg, sem)
 
         # broadcast to every frame so shape = (n_frames, 2)
-        return np.tile([ddg, sem], (traj.n_frames, 1))
+        return self.results[self.key]
 
