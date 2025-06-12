@@ -138,6 +138,6 @@ class SystemEncoder:
     @classmethod
     def from_json(cls, path: str | Path) -> "SystemEncoder":
         cfg = json.loads(Path(path).read_text())
-        return cls(scales=cfg["scales"], seq_vocab=cfg["seq_vocab"])
+        return cls(self.scales=cfg["scales"], self.seq_vocab=cfg["seq_vocab"])
         
 
