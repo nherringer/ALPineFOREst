@@ -57,10 +57,10 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
 
     # ------------------------------------------------------------------ #
     def evaluate(self, traj: Trajectory) -> np.ndarray:
-        traj = traj.mdtraj                       # grab the raw MDTraj
+        md_t: md.Trajectory = traj._traj  # underlying MDTraj object                       # grab the raw MDTraj
 
         # ---- ratio ≥ 0.8 region via hybrid evaluator ------------------
-        counts = self.hybrid_eval.evaluate(traj)
+        counts = self.hybrid_eval.evaluate(md_t)
         ratios = counts[:, 0] / counts.sum(axis=1)
         cv_80 = traj.frame_descriptors()[ratios >= self.ratio_cutoff][:, 0]
         ss_80leg = cv_80.min() if cv_80.size else 0.0
