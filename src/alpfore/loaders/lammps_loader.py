@@ -1,6 +1,6 @@
 # src/alpfore/simulations/lammps_loader.py
 from pathlib import Path
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Tuple
 import numpy as np
 import mdtraj as md
 import glob
@@ -86,7 +86,7 @@ class LAMMPSDumpLoader(BaseLoader):
     @classmethod
     def from_candidate_list(
         cls,
-        candidate_list: List[tuple],
+        candidate_list: List[Tuple],
         encoder: "SystemEncoder",
         struct_pattern: str,
         traj_pattern: str,
