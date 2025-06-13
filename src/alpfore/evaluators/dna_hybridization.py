@@ -6,7 +6,7 @@ import mdtraj as md
 
 from alpfore.core.evaluator import BaseEvaluator
 from alpfore.core.loader import Trajectory
-
+from typing import List
 
 class CGDNAHybridizationEvaluator(BaseEvaluator):
     """Counts anti-parallel (“legal”) and parallel (“illegal”) sticky-strand

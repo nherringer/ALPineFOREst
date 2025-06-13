@@ -43,7 +43,7 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
         bandwidth: float = 1.0,
         ratio_cutoff: float = 0.8,
     ):
-        self.key = tuple(system_features)      # immutable, hashable
+        self.key = Tuple(system_features)      # immutable, hashable
         self.run_dir = Path(run_dir)
         self.ratios = ratios if ratios is not None else np.array([])
         self.walker_ids = walker_ids
