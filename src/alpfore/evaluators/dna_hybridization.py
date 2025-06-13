@@ -5,7 +5,7 @@ import numpy as np
 import mdtraj as md
 
 from alpfore.core.evaluator import BaseEvaluator
-from alpfore.core.loader import Trajectory
+from alpfore.core.trajectory_interface import Trajectory
 from typing import List
 
 class CGDNAHybridizationEvaluator(BaseEvaluator):
@@ -38,7 +38,7 @@ class CGDNAHybridizationEvaluator(BaseEvaluator):
 
     # ------------------------------------------------------------------ #
     def evaluate(self, traj: Trajectory) -> np.ndarray:
-        md_t: md.Trajectory = traj._traj  # underlying MDTraj object
+	md_t = traj.mdtraj()
 
         # Build sticky-strand backbone index arrays for NP1
         first_sticky = 163 + self.gd_long * (2 * self.long_length + 24) + 2 * self.short_length

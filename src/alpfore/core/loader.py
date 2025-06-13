@@ -12,19 +12,12 @@ Concrete implementations belong in `alpfore.loaders.*`.
 
 from __future__ import annotations  # allows "Trajectory" forward reference
 import abc
+from .trajectory_interface import Trajectory
 
 try:
     from typing import Protocol          # Python 3.8+
 except ImportError:
     from typing_extensions import Protocol  # Python 3.7 fallback
-
-# --------------------------------------------------------------------------- #
-# A minimal typing contract for whatever object your simulations return
-# --------------------------------------------------------------------------- #
-class Trajectory(Protocol):
-    """Any trajectory object must provide per‑frame feature vectors."""
-    def frame_descriptors(self) -> "np.ndarray": ...  # noqa: D401,E701
-
 
 # --------------------------------------------------------------------------- #
 # Abstract base class: Loader
@@ -39,5 +32,5 @@ class BaseLoader(abc.ABC):
         # Concrete subclasses override this.
 
 
-__all__ = ["Trajectory", "BaseLoader"]
+__all__ = ["BaseLoader"]
 

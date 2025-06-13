@@ -1,4 +1,6 @@
-__all__ = ["BaseEvaluator", "Trajectory"]
-
-from alpfore.core.evaluator import BaseEvaluator
-from alpfore.core.loader import Trajectory
+from .trajectory_interface import Trajectory
+from .evaluator import BaseEvaluator
+__all__ = [
+    "Trajectory",
+    "BaseEvaluator",
+]

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Union, Sequence, Tuple
 
 from alpfore.core.evaluator import BaseEvaluator
-from alpfore.core.loader import Trajectory
+from alpfore.core.trajectory_interface import Trajectory
 from alpfore.evaluators.dna_hybridization import CGDNAHybridizationEvaluator
 
 
@@ -58,7 +58,8 @@ class DeltaDeltaGEvaluator(BaseEvaluator):
     # ------------------------------------------------------------------ #
     def evaluate(self, traj: Trajectory, ratios: np.ndarray) -> np.ndarray:
 
-        cv_80 = traj[ratios >= self.ratio_cutoff]
+	cv_all = traj.get_cv("cv")
+        cv_80 = cv_all[cv_all >= self.ratio_cutoff]
         ss_80leg = cv_80.min() if cv_80.size else 0.0
 
         # ---- load COLVAR data for this run directory ------------------
