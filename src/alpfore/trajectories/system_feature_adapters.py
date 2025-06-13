@@ -1,6 +1,7 @@
 import numpy as np
 from alpfore.core.trajectory_interface import Trajectory
 
+
 class SystemFeatureAdapter(Trajectory):
     def __init__(self, traj, features: np.ndarray, run_dir=None):
         super().__init__(run_dir=run_dir)
@@ -15,4 +16,3 @@ class SystemFeatureAdapter(Trajectory):
 
     def n_frames(self):
         return self._traj.n_frames
-

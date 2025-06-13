@@ -6,6 +6,7 @@ from typing import List, Tuple, Union, Optional
 from alpfore.core.trajectory_interface import Trajectory
 from alpfore.encoder import SystemEncoder
 
+
 class COLVARLoader:
     def __init__(self, colvar_paths: List[Path], features: np.ndarray):
         self.colvar_paths = colvar_paths
@@ -34,9 +35,10 @@ class COLVARLoader:
             colvar_paths = sorted(glob.glob(colvar_glob))
 
             if not colvar_paths:
-                raise FileNotFoundError(f"No COLVAR files found matching pattern: {colvar_glob}")
+                raise FileNotFoundError(
+                    f"No COLVAR files found matching pattern: {colvar_glob}"
+                )
 
             colvar_paths = [Path(p) for p in colvar_paths]
             loader = cls(colvar_paths=colvar_paths, features=features)
             yield loader.run()
-

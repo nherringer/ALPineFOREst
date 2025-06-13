@@ -19,7 +19,7 @@ import abc
 from typing_extensions import Protocol, TYPE_CHECKING
 from alpfore.core.trajectory_interface import Trajectory
 
-if TYPE_CHECKING:           # avoid importing NumPy at runtime for speed
+if TYPE_CHECKING:  # avoid importing NumPy at runtime for speed
     import numpy as np
 
 
@@ -54,4 +54,3 @@ class BaseEvaluator(abc.ABC):
 
 
 __all__ = ["BaseEvaluator"]
-

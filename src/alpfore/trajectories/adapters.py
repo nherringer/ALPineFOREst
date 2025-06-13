@@ -81,5 +81,3 @@ class MDTrajAdapter:
     def __repr__(self) -> str:  # for nicer debugging printouts
         atoms = self._traj.n_atoms
         return f"<MDTrajAdapter: {self.n_frames} frames, {atoms} atoms>"
-
-

@@ -2,6 +2,7 @@ import pandas as pd
 from pathlib import Path
 from alpfore.core.trajectory_interface import Trajectory
 
+
 class COLVARTrajectory(Trajectory):
     def __init__(self, df: pd.DataFrame, run_dir: Path):
         super().__init__(run_dir)
@@ -15,4 +16,3 @@ class COLVARTrajectory(Trajectory):
 
     def n_frames(self):
         return len(self.df)
-

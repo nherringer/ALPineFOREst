@@ -8,6 +8,7 @@ from alpfore.core.evaluator import BaseEvaluator
 from alpfore.core.trajectory_interface import Trajectory
 from typing import List
 
+
 class CGDNAHybridizationEvaluator(BaseEvaluator):
     """Counts anti-parallel (“legal”) and parallel (“illegal”) sticky-strand
     hybridisations for each frame of a trajectory."""
@@ -38,15 +39,19 @@ class CGDNAHybridizationEvaluator(BaseEvaluator):
 
     # ------------------------------------------------------------------ #
     def evaluate(self, traj: Trajectory) -> np.ndarray:
-	md_t = traj.mdtraj()
+        md_t = traj.mdtraj()
 
         # Build sticky-strand backbone index arrays for NP1
-        first_sticky = 163 + self.gd_long * (2 * self.long_length + 24) + 2 * self.short_length
+        first_sticky = (
+            163 + self.gd_long * (2 * self.long_length + 24) + 2 * self.short_length
+        )
         NP1_short_inds = [
             list(range(first_sticky, first_sticky + 2 * self.sticky_length, 2))
         ]
         for i in range(1, self.gd_short):
-            start = NP1_short_inds[0][0] + i * 2 * (self.short_length + self.sticky_length)
+            start = NP1_short_inds[0][0] + i * 2 * (
+                self.short_length + self.sticky_length
+            )
             NP1_short_inds.append(list(range(start, start + 2 * self.sticky_length, 2)))
         NP1_short_inds = np.array(NP1_short_inds)
 
@@ -61,13 +66,18 @@ class CGDNAHybridizationEvaluator(BaseEvaluator):
             list(range(second_sticky, second_sticky + 2 * self.sticky_length, 2))
         ]
         for j in range(1, self.gd_short):
-            start = NP2_short_inds[0][0] + j * 2 * (self.short_length + self.sticky_length)
+            start = NP2_short_inds[0][0] + j * 2 * (
+                self.short_length + self.sticky_length
+            )
             NP2_short_inds.append(list(range(start, start + 2 * self.sticky_length, 2)))
         NP2_short_inds = np.array(NP2_short_inds)
 
         # Pre-compute neighbours (NP1 bases close to NP2 bases)
         NP1_close = md.compute_neighbors(
-            md_t, 0.2, np.concatenate(NP2_short_inds) + 1, np.concatenate(NP1_short_inds) + 1
+            md_t,
+            0.2,
+            np.concatenate(NP2_short_inds) + 1,
+            np.concatenate(NP1_short_inds) + 1,
         )
 
         legal, illegal = [], []
@@ -77,7 +87,9 @@ class CGDNAHybridizationEvaluator(BaseEvaluator):
             NP1_vecs, NP2_vecs = {}, {}
 
             for base_idx in NP1_close[f]:
-                strand_id = int(np.where(np.isin(NP1_short_inds, [base_idx - 1, base_idx]))[0])
+                strand_id = int(
+                    np.where(np.isin(NP1_short_inds, [base_idx - 1, base_idx]))[0]
+                )
 
                 if strand_id not in NP1_vecs:
                     # NP1 direction vector
@@ -91,7 +103,9 @@ class CGDNAHybridizationEvaluator(BaseEvaluator):
                     partner = md.compute_neighbors(
                         md_t[f], 0.2, [base_idx], np.concatenate(NP2_short_inds) + 1
                     )[0][0]
-                    strand2_id = int(np.where(np.isin(NP2_short_inds, [partner - 1, partner]))[0])
+                    strand2_id = int(
+                        np.where(np.isin(NP2_short_inds, [partner - 1, partner]))[0]
+                    )
 
                     np2_start = NP2_short_inds[strand2_id][0]
                     np2_end = NP2_short_inds[strand2_id][-1]

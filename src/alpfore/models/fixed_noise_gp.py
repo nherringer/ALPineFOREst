@@ -4,7 +4,10 @@ import torch
 from gpytorch.mlls.marginal_log_likelihood import MarginalLogLikelihood
 from torch.optim import Adam
 
-def fit_gpytorch_mll(mll: MarginalLogLikelihood, bounds=None, track_iterations=False, **kwargs):
+
+def fit_gpytorch_mll(
+    mll: MarginalLogLikelihood, bounds=None, track_iterations=False, **kwargs
+):
     mll.train()
     optimizer = Adam(mll.parameters(), lr=0.1)
     for _ in range(50):
@@ -13,6 +16,7 @@ def fit_gpytorch_mll(mll: MarginalLogLikelihood, bounds=None, track_iterations=F
         output.backward()
         optimizer.step()
     mll.eval()
+
 
 from botorch.models import FixedNoiseGP
 from botorch.models.transforms import Standardize
@@ -35,10 +39,12 @@ class FixedNoiseGPModel(BaseModel):
     """
 
     def __init__(self, ard_dims: int | None = None, device: str | None = None):
-        self.device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
+        self.device = torch.device(
+            device or ("cuda" if torch.cuda.is_available() else "cpu")
+        )
         self.ard_dims = ard_dims
-        self.gp = None           # will hold the BoTorch model
-        self._y_trsf = None      # Standardize transform
+        self.gp = None  # will hold the BoTorch model
+        self._y_trsf = None  # Standardize transform
 
     # ------------------------------------------------------------------ #
     def fit(self, X: np.ndarray, Y: np.ndarray) -> None:
@@ -55,7 +61,9 @@ class FixedNoiseGPModel(BaseModel):
         y_t_std = self._y_trsf(y_t)
 
         self.gp = FixedNoiseGP(
-            train_X=x_t, train_Y=y_t_std, train_Yvar=y_var,
+            train_X=x_t,
+            train_Y=y_t_std,
+            train_Yvar=y_var,
             outcome_transform=None,
             input_transform=None,
         ).to(self.device)
@@ -84,4 +92,3 @@ class FixedNoiseGPModel(BaseModel):
             var_std = posterior.variance * (self._y_trsf.std**2)
 
         return mean_std.cpu().numpy(), var_std.cpu().numpy()
-

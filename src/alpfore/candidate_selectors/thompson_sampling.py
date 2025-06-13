@@ -37,10 +37,11 @@ class ThompsonSamplingSelector(BaseSelector):
         Assumes a *single-output* surrogate; extend with axis handling
         if you have multi-output targets.
         """
-        mean, var = model.predict(search_space)        # shape (N, 1) each
-        std = np.sqrt(var.clip(min=1e-12))             # numerical safety
-        draws = self.rng.normal(mean, std)             # Thompson sample
+        mean, var = model.predict(search_space)  # shape (N, 1) each
+        std = np.sqrt(var.clip(min=1e-12))  # numerical safety
+        draws = self.rng.normal(mean, std)  # Thompson sample
 
-        top_idx = np.argpartition(-draws.squeeze(), self.batch_size - 1)[: self.batch_size]
+        top_idx = np.argpartition(-draws.squeeze(), self.batch_size - 1)[
+            : self.batch_size
+        ]
         return search_space[top_idx]
-

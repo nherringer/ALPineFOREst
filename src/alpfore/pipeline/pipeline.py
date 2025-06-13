@@ -6,6 +6,7 @@ from alpfore.core.trajectory_interface import Trajectory
 from alpfore.evaluators import CGDNAHybridizationEvaluator, DeltaDeltaGEvaluator
 from typing import Callable, Iterable, Tuple, List
 
+
 class Pipeline:
     def __init__(self, encoder_config_path: str, candidate_list: List[Tuple]):
         """
@@ -34,21 +35,19 @@ class Pipeline:
             results.append((ddg, sem))
         return results
 
-    def encode_and_load(
-        self,
-        loader_type="lammps",
-        **loader_kwargs
-    ):
+    def encode_and_load(self, loader_type="lammps", **loader_kwargs):
         print("loader_type =", loader_type)
         print("kwargs =", loader_kwargs)
 
         if loader_type == "lammps":
             from alpfore.loaders.lammps_loader import LAMMPSDumpLoader as loader_cls
+
             required_keys = ["struct_pattern", "traj_pattern"]
             optional_keys = ["stride", "n_equil_drop", "use_parallel", "n_jobs"]
 
         elif loader_type == "colvar":
             from alpfore.loaders.colvar_loader import COLVARLoader as loader_cls
+
             required_keys = ["colvar_pattern"]
             optional_keys = []
 
@@ -65,16 +64,16 @@ class Pipeline:
         # Sanity check: raise if any required key is missing
         for k in required_keys:
             if k not in selected_kwargs:
-                raise ValueError(f"Missing required argument for loader_type='{loader_type}': {k}")
+                raise ValueError(
+                    f"Missing required argument for loader_type='{loader_type}': {k}"
+                )
 
         # Final dispatch
         self.trajectories = list(
             loader_cls.from_candidate_list(
-                self.candidate_list,
-                encoder=self.encoder,
-                **selected_kwargs
+                self.candidate_list, encoder=self.encoder, **selected_kwargs
             )
-        ) 
+        )
 
     def evaluate_ddg(self, walker_ids=[0, 1, 2], ratio_cutoff=0.8, bandwidth=2.5):
         """Evaluate ddG and SEM values for each candidate system."""
@@ -90,7 +89,6 @@ class Pipeline:
                 ratios,
                 walker_ids=walker_ids,
                 ratio_cutoff=ratio_cutoff,
-                bandwidth=bandwidth
-            )
+                bandwidth=bandwidth,
+            ),
         )
-

@@ -9,6 +9,7 @@ from alpfore.core.loader import BaseLoader, Trajectory
 from alpfore.trajectories.adapters import MDTrajAdapter
 from alpfore.trajectories.system_feature_adapters import SystemFeatureAdapter
 
+
 class LAMMPSDumpLoader(BaseLoader):
     """
     Load an existing LAMMPS trajectory and present it as a Trajectory object.
@@ -30,7 +31,7 @@ class LAMMPSDumpLoader(BaseLoader):
         features: np.ndarray,
         stride: int = 1,
         n_equil_drop: int = 0,
-        cand_list: Optional[List[int]] = None
+        cand_list: Optional[List[int]] = None,
     ):
         self.trj_path = Path(trj_path)
         self.struct_path = Path(struct_path)
@@ -39,15 +40,14 @@ class LAMMPSDumpLoader(BaseLoader):
         self.features = features
         self.cand_list = cand_list if cand_list is not None else []
 
-
     def run(self) -> Trajectory:
-        dump = self.trj_path 
-        top  = self.struct_path
+        dump = self.trj_path
+        top = self.struct_path
         traj = md.load(dump, top=top, stride=self.stride)
         if self.n_equil_drop:
-            traj = traj[self.n_equil_drop:]      # MDTraj slice view
+            traj = traj[self.n_equil_drop :]  # MDTraj slice view
         return SystemFeatureAdapter(traj, self.features)
-    
+
     @classmethod
     def from_multi_dump(
         cls,
@@ -55,7 +55,7 @@ class LAMMPSDumpLoader(BaseLoader):
         struct_path: Union[str, Path],
         features: np.ndarray,
         stride: int = 1,
-        n_equil_drop: int = 0
+        n_equil_drop: int = 0,
     ) -> Trajectory:
         """
         Alternate constructor to concatenate multiple dump files.
@@ -97,6 +97,7 @@ class LAMMPSDumpLoader(BaseLoader):
     ):
         try:
             from joblib import Parallel, delayed
+
             joblib_available = True
         except ImportError:
             joblib_available = False
@@ -111,12 +112,13 @@ class LAMMPSDumpLoader(BaseLoader):
                 struct_path=struct_path_str,
                 features=features,
                 stride=stride,
-                n_equil_drop=n_equil_drop
+                n_equil_drop=n_equil_drop,
             )
 
         if use_parallel and joblib_available:
             results = Parallel(n_jobs=n_jobs)(
-                delayed(load_one)(seq, ssl, lsl, sgd) for (seq, ssl, lsl, sgd) in candidate_list
+                delayed(load_one)(seq, ssl, lsl, sgd)
+                for (seq, ssl, lsl, sgd) in candidate_list
             )
             yield from results
         else:
