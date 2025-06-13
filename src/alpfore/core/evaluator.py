@@ -17,10 +17,10 @@ from __future__ import annotations
 
 import abc
 from typing_extensions import Protocol, TYPE_CHECKING
+from alpfore.core.trajectory_interface import Trajectory
 
 if TYPE_CHECKING:           # avoid importing NumPy at runtime for speed
     import numpy as np
-    from alpfore.core.loader import Trajectory
 
 
 # --------------------------------------------------------------------------- #
