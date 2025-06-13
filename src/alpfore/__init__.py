@@ -10,7 +10,9 @@ import importlib
 import pathlib
 import sys
 
-for loader, module_name, is_pkg in pkgutil.walk_packages(__path__, prefix=__name__ + "."):
+for loader, module_name, is_pkg in pkgutil.walk_packages(
+    __path__, prefix=__name__ + "."
+):
     module = importlib.import_module(module_name)
     # attach the top-level module to the alpfore namespace
     name_parts = module_name.split(".")

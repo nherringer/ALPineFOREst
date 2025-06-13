@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
 
+
 class Trajectory(ABC):
     def __init__(self, run_dir: Path):
         self.run_dir = run_dir
@@ -21,4 +22,3 @@ class Trajectory(ABC):
 
     def n_frames(self) -> int:
         raise NotImplementedError
-

@@ -15,7 +15,7 @@ import abc
 from .trajectory_interface import Trajectory
 
 try:
-    from typing import Protocol          # Python 3.8+
+    from typing import Protocol  # Python 3.8+
 except ImportError:
     from typing_extensions import Protocol  # Python 3.7 fallback
 
@@ -33,4 +33,3 @@ class BaseLoader(abc.ABC):
 
 
 __all__ = ["BaseLoader"]
-

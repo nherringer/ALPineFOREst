@@ -47,4 +47,3 @@ class BaseModel(abc.ABC):
 
 
 __all__ = ["BaseModel"]
-

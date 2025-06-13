@@ -23,15 +23,15 @@ class SystemEncoder:
         rng = self.scales[key]["max"] - self.scales[key]["min"]
         return np.round((val - self.scales[key]["min"]) / rng, 3)
 
-# inside SystemEncoder
+    # inside SystemEncoder
     def _one_hot_seq(self, seq: str, width: int = 12) -> np.ndarray:
         """
         Encode a variable-length DNA sequence into a flattened 12 × 3 array.
 
         Rules
         -----
-        • Allowed bases: 'T' or 'A'  (upper- or lower-case)  
-        • If `len(seq) < width`, pad **on the left** with the token Ø → [0,0,1].  
+        • Allowed bases: 'T' or 'A'  (upper- or lower-case)
+        • If `len(seq) < width`, pad **on the left** with the token Ø → [0,0,1].
         • If `len(seq) > width`, raise an error.
 
         Returned shape
@@ -43,17 +43,17 @@ class SystemEncoder:
             raise ValueError(f"Sequence longer than {width} bp: {seq!r}")
 
         pad_len = width - len(seq)
-        tokens = ["Ø"] * pad_len + list(seq)          # Ø = padding
+        tokens = ["Ø"] * pad_len + list(seq)  # Ø = padding
 
         # mapping to one-hot rows
         map_vec = {
-            "T": np.array([1., 0., 0.]),
-            "A": np.array([0., 1., 0.]),
-            "Ø": np.array([0., 0., 1.]),
+            "T": np.array([1.0, 0.0, 0.0]),
+            "A": np.array([0.0, 1.0, 0.0]),
+            "Ø": np.array([0.0, 0.0, 1.0]),
         }
 
         rows = [map_vec[b] for b in tokens]
-        return np.concatenate(rows, axis=0)            # flatten to (36,)
+        return np.concatenate(rows, axis=0)  # flatten to (36,)
 
     # ---- public API -------------------------------------------------- #
     def encode(
@@ -74,6 +74,7 @@ class SystemEncoder:
         )
         one_hot = self._one_hot_seq(seq)
         return np.concatenate([meta, one_hot])
+
     @classmethod
     def decode(self, X: np.ndarray) -> np.ndarray:
         """
@@ -100,26 +101,27 @@ class SystemEncoder:
 
         # ---------- un-scale meta ----------
         rng = self.scales  # config["scales"]
+
         def _unscale(key, v):
             lo, hi = rng[key]["min"], rng[key]["max"]
             return v * (hi - lo) + lo
 
-        ssl    = _unscale("ssl",    meta_scaled[:, 0]).round().astype(int)
-        lsl    = _unscale("lsl",    meta_scaled[:, 1]).round().astype(int)
-        sgd    = _unscale("sgd",    meta_scaled[:, 2]).round().astype(int)
+        ssl = _unscale("ssl", meta_scaled[:, 0]).round().astype(int)
+        lsl = _unscale("lsl", meta_scaled[:, 1]).round().astype(int)
+        sgd = _unscale("sgd", meta_scaled[:, 2]).round().astype(int)
         L_true = _unscale("seqlen", meta_scaled[:, 3]).round().astype(int)  # 4–12
 
         # ---------- decode sequences ----------
-        vocab = np.array(list("TAØ"))           # 0→T, 1→A, 2→Ø
+        vocab = np.array(list("TAØ"))  # 0→T, 1→A, 2→Ø
         oh = one_hot.reshape(X.shape[0], 12, 3)
 
         seqs = []
         for row_oh, L in zip(oh, L_true):
-            idx  = row_oh.argmax(axis=1)        # (12,)
-            chars = vocab[idx]                  # array(['T','Ø','A',...])
+            idx = row_oh.argmax(axis=1)  # (12,)
+            chars = vocab[idx]  # array(['T','Ø','A',...])
             # keep only non-padding symbols
-            seq  = "".join(c for c in chars if c != "Ø")
-            if len(seq) != L:                   # guard against mismatch
+            seq = "".join(c for c in chars if c != "Ø")
+            if len(seq) != L:  # guard against mismatch
                 raise ValueError(
                     f"Decoded length {len(seq)} ≠ expected {L}. "
                     "Ensure encode/decode use identical padding."
@@ -139,5 +141,3 @@ class SystemEncoder:
     def from_json(cls, path: str | Path) -> "SystemEncoder":
         cfg = json.loads(Path(path).read_text())
         return cls(scales=cfg["scales"], seq_vocab=cfg["seq_vocab"])
-        
-
