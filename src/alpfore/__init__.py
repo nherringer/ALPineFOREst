@@ -20,5 +20,12 @@ for loader, module_name, is_pkg in pkgutil.walk_packages(
         setattr(sys.modules[__name__], name_parts[1], module)
 
 # Auto-discover all submodules
-from . import encoder, loaders, evaluators, pipeline
+from . import encoder, loaders, evaluators, pipeline, utils, models
 from .pipeline import Pipeline
+from .utils.dataset_utils import (
+    make_labeled_dataset,
+    save_labeled_dataset,
+    load_labeled_dataset,
+    append_to_labeled_dataset,
+)
+

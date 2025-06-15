@@ -1,49 +1,27 @@
-"""
-Core abstractions for the *Modeling* stage of ALPine FOREst.
+from abc import ABC, abstractmethod
+import numpy as np
+import torch
 
-A Model consumes *X* (frame descriptors) and *Y* (targets from the Evaluator),
-fits its internal parameters, and can make probabilistic predictions.
+class BaseModel(ABC):
+    @abstractmethod
+    def predict(self, X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Returns mean and variance predictions for inputs X"""
+        pass
 
-Typical concrete classes wrap GPyTorch GPs, scikit‑learn regressors, etc.
-Concrete implementations belong in ``alpfore.models.*``.
-"""
+    @abstractmethod
+    def kernel_matrix(self, X1: np.ndarray, X2: np.ndarray) -> torch.Tensor:
+        """Returns kernel matrix K(X1, X2)"""
+        pass
 
-from __future__ import annotations
+    @property
+    @abstractmethod
+    def X_train(self) -> np.ndarray:
+        pass
 
-import abc
-from typing import Tuple, TYPE_CHECKING
-from typing_extensions import Protocol
-
-if TYPE_CHECKING:
-    import numpy as np
-
-
-class BaseModel(abc.ABC):
-    """Abstract contract for surrogate models used in active learning."""
-
-    # --------------------------- Training --------------------------- #
-    @abc.abstractmethod
-    def fit(self, X: "np.ndarray", Y: "np.ndarray") -> None:
-        """
-        Learn model parameters from data.
-
-        X : shape (n_samples, d)
-        Y : shape (n_samples, k)
-        """
-        ...
-
-    # ------------------------- Prediction -------------------------- #
-    @abc.abstractmethod
-    def predict(self, X: "np.ndarray") -> Tuple["np.ndarray", "np.ndarray"]:
-        """
-        Predict mean and variance for new inputs.
-
-        Returns
-        -------
-        mean : shape (n_samples, k)
-        var  : shape (n_samples, k)
-        """
-        ...
+    @property
+    @abstractmethod
+    def Y_train(self) -> np.ndarray:
+        pass
 
 
 __all__ = ["BaseModel"]
