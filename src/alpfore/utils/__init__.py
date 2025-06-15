@@ -2,7 +2,14 @@ from .dataset_utils import (
     make_labeled_dataset,
     save_labeled_dataset,
     load_labeled_dataset,
-    append_new_data,
+    append_labeled_dataset,
+)
+
+from .kernel_utils import (
+    compute_kernel_matrix,
+    load_kernel_matrix,
+    compute_kernel_pca,
+    transform_with_kpca,
 )
 
 __all__ = [
@@ -10,5 +17,9 @@ __all__ = [
     "save_labeled_dataset",
     "load_labeled_dataset",
     "append_new_data",
+    "compute_kernel_matrix",
+    "load_kernel_matrix",
+    "compute_kernel_pca",
+    "transform_with_kpca",
 ]
 
