@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import torch
+from typing import Tuple
 
 class BaseModel(ABC):
     @abstractmethod
-    def predict(self, X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def predict(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Returns mean and variance predictions for inputs X"""
         pass
 
