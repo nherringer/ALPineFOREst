@@ -5,7 +5,7 @@ from alpfore.loaders import LAMMPSDumpLoader, COLVARLoader
 from alpfore.core.trajectory_interface import Trajectory
 from alpfore.evaluators import CGDNAHybridizationEvaluator, DeltaDeltaGEvaluator
 from typing import Callable, Iterable, Tuple, List
-
+import numpy as np
 
 class Pipeline:
     def __init__(self, encoder_config_path: str, candidate_list: List[Tuple]):
@@ -21,17 +21,16 @@ class Pipeline:
         self.trajectories: List[Trajectory] = []
 
     def evaluate_candidate_list_ddg(
+        self,
         candidate_list: List[Tuple],
         cand_list_trjs: Iterable[Trajectory],
-        hybrid_eval_factory: Callable[..., CGDNAHybridizationEvaluator],
+        cv_cutoffs: List[np.ndarray],
         ddg_eval_factory: Callable[..., DeltaDeltaGEvaluator],
     ):
         results = []
-        for key, traj in zip(candidate_list, cand_list_trjs):
-            hybrid_eval = hybrid_eval_factory(*key)
-            hybrid_ratios = hybrid_eval.evaluate(traj)
-            ddg_eval = ddg_eval_factory(key, traj.run_dir, hybrid_ratios)
-            ddg, sem = ddg_eval.evaluate(traj, hybrid_ratios)
+        for key, traj, cutoff in zip(self.candidate_list, cand_list_trjs, cv_cutoffs):
+            ddg_eval = ddg_eval_factory(key, traj.run_dir, cutoff)
+            ddg, sem = ddg_eval.evaluate(traj, cutoff)
             results.append((ddg, sem))
         return results
 
@@ -49,7 +48,7 @@ class Pipeline:
             from alpfore.loaders.colvar_loader import COLVARLoader as loader_cls
 
             required_keys = ["colvar_pattern"]
-            optional_keys = []
+            optional_keys = ["names"]
 
         else:
             raise ValueError(f"Unknown loader_type: {loader_type}")
@@ -75,20 +74,17 @@ class Pipeline:
             )
         )
 
-    def evaluate_ddg(self, walker_ids=[0, 1, 2], ratio_cutoff=0.8, bandwidth=2.5):
+    def evaluate_ddg(self, cv_cutoffs=20, walker_ids=[0, 1, 2], bandwidth=2.5):
         """Evaluate ddG and SEM values for each candidate system."""
         return evaluate_candidate_list_ddg(
             candidate_list=self.candidate_list,
             cand_list_trjs=self.trajectories,
-            hybrid_eval_factory=lambda seq, ssl, lsl, sgd, *_: CGDNAHybridizationEvaluator(
-                1, sgd, ssl, lsl, len(seq)
-            ),
-            ddg_eval_factory=lambda key, run_dir, ratios: DeltaDeltaGEvaluator(
+            cv_cutoffs=cv_cutoffs,
+            ddg_eval_factory=lambda key, run_dir, cv_cutoffs: DeltaDeltaGEvaluator(
                 key,
                 run_dir,
-                ratios,
                 walker_ids=walker_ids,
-                ratio_cutoff=ratio_cutoff,
+                cv_cutoff=cv_cutoffs,
                 bandwidth=bandwidth,
             ),
         )

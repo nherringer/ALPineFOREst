@@ -22,3 +22,7 @@ class Trajectory(ABC):
 
     def n_frames(self) -> int:
         raise NotImplementedError
+
+    def join_all(self):
+        """Return a single trajectory or dataframe joined across walkers (if applicable)."""
+        raise NotImplementedError("This trajectory type does not support joining.")
