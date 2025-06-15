@@ -45,7 +45,7 @@ class COLVARLoader:
             loader = cls(colvar_paths=colvar_paths, features=features, names=names)
             yield loader.run()
 
-    def join_all(trajectories: list[COLVARTrajectory]) -> COLVARTrajectory:
+    def join_all(trajectories: List[COLVARTrajectory]) -> COLVARTrajectory:
         """Concatenate data from multiple COLVARTrajectories into one."""
         if not trajectories:
             raise ValueError("No trajectories to join.")

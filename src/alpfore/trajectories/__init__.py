@@ -1,11 +1,7 @@
-from .adapters import MDTrajAdapter
-from .system_feature_adapters import SystemFeatureAdapter
+from .lammps_trajectory import LAMMPSTrajectory
 from .colvar_trajectory import COLVARTrajectory
-from .multi_walker_trajectory import MultiWalkerTrajectory
 
 __all__ = [
-    "SystemFeatureAdapter",
+    "LAMMPSTrajectory",
     "COLVARTrajectory",
-    "MDTrajAdapter",
-    "MultiWalkerTrajectory"
 ]
