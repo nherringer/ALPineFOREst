@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 import mdtraj as md
+import pandas as pd
 
 from alpfore.core.evaluator import BaseEvaluator
 from alpfore.core.trajectory_interface import Trajectory
@@ -122,3 +123,95 @@ class CGDNAHybridizationEvaluator(BaseEvaluator):
             illegal.append(illegal_cnt)
 
         return np.column_stack((legal, illegal))
+
+def evaluate(self, traj: md.Trajectory) -> pd.DataFrame:
+
+    # Compute interparticle distance per frame (CV)
+    dists = md.compute_distances(traj, [[0, self.NP2_center]])[:, 0] * 10  # nm → Å
+
+    legal = np.zeros(traj.n_frames, dtype=int)
+    illegal = np.zeros(traj.n_frames, dtype=int)
+
+    # Identify hybridized pairs using compute_neighbors
+    NP1_inds = np.concatenate(self.NP1_short_inds) + 1
+    NP2_inds = np.concatenate(self.NP2_short_inds) + 1
+    hybrid_pairs = md.compute_neighbors(traj, self.hybrid_cutoff / 10, NP2_inds, NP1_inds)
+
+    for frame_idx, neighbors in enumerate(hybrid_pairs):
+        for i2, i1 in neighbors:
+            # Convert from 1-based back to 0-based
+            atom1 = i1 - 1
+            atom2 = i2 - 1
+
+            # Figure out which strand this pair belongs to
+            for strand in self.strand_pairs:
+                if atom1 in strand and atom2 in strand:
+                    alpha_idx, omega_idx = strand
+                    break
+            else:
+                continue  # Skip if no match
+
+            # Direction vector of strand (omega - alpha)
+            r = traj.xyz[frame_idx, omega_idx] - traj.xyz[frame_idx, alpha_idx]
+            r /= np.linalg.norm(r)
+
+            # Vector from alpha to NP2 center
+            v = traj.xyz[frame_idx, self.NP2_center] - traj.xyz[frame_idx, alpha_idx]
+            v /= np.linalg.norm(v)
+
+            dot = np.dot(r, v)
+
+            if dot < 0:
+                legal[frame_idx] += 1
+            else:
+                illegal[frame_idx] += 1
+
+    df = pd.DataFrame({
+        "CV": dists,
+        "Legal": legal,
+        "Illegal": illegal
+    })
+
+    # Save result so it can be reused
+    out_path = Path(self.run_dir) / "hybridization_data.csv"
+    df.to_csv(out_path, index=False)
+
+    return df
+
+
+def compute_cv_cutoff(
+    traj: Union[str, pd.DataFrame],
+    system_features: Tuple[str, int, int, int],
+    legal_thresh: float = 0.8,
+) -> int:
+    """
+    Computes the CV cutoff value at which the fraction of legal bonds exceeds a threshold.
+    Can accept either a precomputed CSV path or a raw dataframe.
+    """
+    if isinstance(traj, str):
+        hat_df = pd.read_csv(traj)
+    elif isinstance(traj, pd.DataFrame):
+        hat_df = traj
+    else:
+        raise TypeError("traj must be a filepath or DataFrame.")
+
+    # Bin CV values
+    hat_df["CV_bin"] = np.round(hat_df["CV"]).astype(int)
+
+
+    # Group and compute legal fraction per CV bin
+    col_df = (
+        hat_df.groupby("CV_bin", as_index=False)[["Legal", "Illegal"]]
+        .sum()
+        .assign(total=lambda df: df["Legal"] + df["Illegal"])
+        .assign(frac_legal=lambda df: df["Legal"] / (df["total"] + 1e-10))
+    )
+
+    # Find first CV bin where fraction of legal bonds exceeds threshold
+    passing_bins = col_df[col_df["frac_legal"] > legal_thresh]
+    if passing_bins.empty:
+        raise ValueError("No bins exceed legal threshold.")
+
+    val = passing_bins["CV_bin"].iloc[0]
+    return val
+
