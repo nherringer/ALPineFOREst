@@ -1,4 +1,5 @@
 import torch
+from gpytorch.settings import fast_pred_var
 import numpy as np
 from gpytorch.mlls import ExactMarginalLogLikelihood
 from botorch.models import FixedNoiseGP
@@ -12,6 +13,7 @@ def train_gp_model(
     X_train: torch.Tensor,
     Y_train: torch.Tensor,
     Y_var: torch.Tensor,
+    X_pred: torch.Tensor,
     kernel,
     standardize: bool = True,
 ) -> Tuple[FixedNoiseGP, torch.Tensor, torch.Tensor]:
@@ -44,9 +46,19 @@ def train_gp_model(
     fit_gpytorch_model(mll, max_retries=10)
 
     model.eval()
-    with torch.no_grad():
-        posterior = model(X_train)
-        mean, variance = posterior.mean, posterior.variance
+
+    batch_size = 1_000  # Start small, adjust based on GPU RAM
+    means, variances = [], []
+
+    for i in range(0, len(X_pred), batch_size):
+        X_batch = X_test[i:i+batch_size].to(device)
+        with torch.no_grad(), fast_pred_var():
+            posterior = model(X_batch)
+            means.append(posterior.mean)
+            variances.append(posterior.variance)
+
+    mean = torch.cat(means)
+    variance = torch.cat(variances)
 
     # Undo standardization if needed
     if standardize:
@@ -81,10 +93,10 @@ def plot_loo_parity(train_X, train_Y, train_Yvar, kernel, save_path=None):
         Yvar_train = train_Yvar[train_idx]
         X_test = train_X[test_idx]
 
-        model = train_gp_model(X_train, Y_train, Yvar_train, kernel)
-        model.eval()
+        gp, gp_mean, gp_var = train_gp_model(X_train, Y_train, Yvar_train, X_train, kernel)
+        gp.eval()
         with torch.no_grad():
-            pred = model.posterior(X_test).mean.item()
+            pred = gp.posterior(X_test).mean.item()
 
         preds.append(pred)
         actuals.append(train_Y[test_idx].item())

@@ -7,20 +7,23 @@ class TanimotoKernel(Kernel):
     """Implements the Tanimoto similarity kernel for binary sequence vectors."""
     has_lengthscale = True
 
-    def forward(self, x1, x2, **params):
-        # Handle potential 3D input by squeezing
-        if x1.dim() > 2:
-            x1 = x1.squeeze(1)
-        if x2.dim() > 2:
-            x2 = x2.squeeze(1)
-
-        dot = torch.matmul(x1, x2.T)
-        norm_x1 = torch.sum(x1**2, dim=-1, keepdim=True)
-        norm_x2 = torch.sum(x2**2, dim=-1, keepdim=True).T
-        tanimoto = dot / (norm_x1 + norm_x2 - dot + 1e-6)
-        distance = 1.0 - tanimoto
-
-        return torch.exp(-distance / self.lengthscale)
+    def forward(self, x1, x2, diag=False, **params):
+        if diag:
+            # Only compute diagonal elements (for variances)
+            dot = (x1 * x2).sum(dim=-1)
+            norm_x1 = x1.pow(2).sum(dim=-1)
+            norm_x2 = x2.pow(2).sum(dim=-1)
+            tanimoto = dot / (norm_x1 + norm_x2 - dot + 1e-6)
+            distance = 1.0 - tanimoto
+            return torch.exp(-distance / self.lengthscale)
+        else:
+            # Batched computation for covariances
+            dot = torch.matmul(x1, x2.T)  # Only safe for small batches!
+            norm_x1 = x1.pow(2).sum(dim=-1, keepdim=True)
+            norm_x2 = x2.pow(2).sum(dim=-1, keepdim=True).T
+            tanimoto = dot / (norm_x1 + norm_x2 - dot + 1e-6)
+            distance = 1.0 - tanimoto
+            return torch.exp(-distance / self.lengthscale)
 
 
 class CustomKernel(Kernel):
@@ -46,12 +49,6 @@ class CustomKernel(Kernel):
         )
 
     def forward(self, x1, x2, **params):
-        # Force batch dimension
-        if x1.dim() < 3:
-            x1 = x1.unsqueeze(1)
-        if x2.dim() < 3:
-            x2 = x2.unsqueeze(1)
-
         # Split features
         x1_ssl, x1_lsl, x1_sgd, x1_seqL, x1_seq = (
             x1[:, 0, 0].unsqueeze(-1),
@@ -69,11 +66,11 @@ class CustomKernel(Kernel):
         )
 
         # Kernel components
-        k_ssl = self.rbf_ssl(x1_ssl, x2_ssl, **params)
-        k_lsl = self.rbf_lsl(x1_lsl, x2_lsl, **params)
-        k_sgd = self.rbf_sgd(x1_sgd, x2_sgd, **params)
-        k_seqL = self.rbf_seqL(x1_seqL, x2_seqL, **params)
-        k_seq = self.tanimoto(x1_seq, x2_seq, **params)
+        k_ssl = self.rbf_ssl(x1_ssl, x2_ssl, diag=True, **params)
+        k_lsl = self.rbf_lsl(x1_lsl, x2_lsl, diag=True, **params)
+        k_sgd = self.rbf_sgd(x1_sgd, x2_sgd, diag=True, **params)
+        k_seqL = self.rbf_seqL(x1_seqL, x2_seqL, diag=True, **params)
+        k_seq = self.tanimoto(x1_seq, x2_seq, , diag=True, **params)
 
         return k_ssl * k_lsl * k_sgd * k_seqL * k_seq
 
