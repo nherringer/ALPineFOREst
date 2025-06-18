@@ -5,17 +5,20 @@ from gpytorch.mlls import ExactMarginalLogLikelihood
 from botorch.models import FixedNoiseGP
 from botorch.fit import fit_gpytorch_model
 from botorch.models.transforms.outcome import Standardize
-from typing import Tuple
+from typing import Tuple, Optional
 import matplotlib.pyplot as plt
 from sklearn.model_selection import LeaveOneOut
+from alpfore.utils.kernel_utils import compute_kernel_matrix, gpytorch_kernel_wrapper 
+
 
 def train_gp_model(
     X_train: torch.Tensor,
     Y_train: torch.Tensor,
     Y_var: torch.Tensor,
-    X_pred: torch.Tensor,
-    kernel,
+    X_pred: Optional[torch.Tensor] = None,
+    kernel=None,
     standardize: bool = True,
+    batch_size: int = 1000,
 ) -> Tuple[FixedNoiseGP, torch.Tensor, torch.Tensor]:
     """
     Fit a GPyTorch + BoTorch GP model to labeled data using a custom kernel.
@@ -46,65 +49,81 @@ def train_gp_model(
     fit_gpytorch_model(mll, max_retries=10)
 
     model.eval()
+    if X_pred is not None:
+        K_test_train = compute_kernel_matrix(
+                        X1=X_pred,
+                        X2=X_train,
+                        kernel_func=model.covar_module,
+                        batch_size=batch_size,
+                        save_dir="kernels/",
+                        prefix="K_batch",
+                        return_file_paths=True,
+                        verbose=True,
+                        Y_train=Y_train,
+                        clamp_var=1e-6,
+                        model=model
+                        )
+    return model
 
-    batch_size = 1_000  # Start small, adjust based on GPU RAM
-    means, variances = [], []
-
-    for i in range(0, len(X_pred), batch_size):
-        X_batch = X_test[i:i+batch_size].to(device)
-        with torch.no_grad(), fast_pred_var():
-            posterior = model(X_batch)
-            means.append(posterior.mean)
-            variances.append(posterior.variance)
-
-    mean = torch.cat(means)
-    variance = torch.cat(variances)
-
-    # Undo standardization if needed
-    if standardize:
-        mean, variance = model.outcome_transform.untransform(mean, variance)
-
-    return model, mean, variance
-
-def plot_loo_parity(train_X, train_Y, train_Yvar, kernel, save_path=None):
+def plot_loo_parity(train_X, train_Y, train_Yvar, kernel, save_path=None, batch_size=1000):
     """
-    Performs leave-one-out cross-validation and plots predicted vs actual ddG values.
+    Leave-one-out cross-validation using matrix-based kernel prediction.
 
     Args:
-        train_X (torch.Tensor): Feature tensor of shape [n, d].
-        train_Y (torch.Tensor): Target tensor of shape [n, 1].
-        train_Yvar (torch.Tensor): Noise variance tensor of shape [n, 1].
-        kernel (gpytorch.kernels.Kernel): GPyTorch kernel module.
-        save_path (str or Path, optional): If provided, saves the plot to this path.
+        train_X (np.ndarray): Features (n, d)
+        train_Y (torch.Tensor): Target tensor (n, 1)
+        train_Yvar (torch.Tensor): Noise variances (n, 1) — unused for now
+        kernel: trained GPyTorch kernel
+        save_path (str): Optional path to save plot
+        batch_size (int): Batch size for kernel computation
 
     Returns:
-        actuals (np.ndarray): True ddG values.
-        preds (np.ndarray): Predicted ddG values.
+        actuals (np.ndarray): True ddG values
+        preds (np.ndarray): Predicted ddG values
     """
-    loo = LeaveOneOut()
-    actuals, preds = [], []
-
+    # Convert input
+    train_X_np = train_X if isinstance(train_X, np.ndarray) else train_X.numpy()
     train_Y_np = train_Y.squeeze().numpy()
-    train_Yvar_np = train_Yvar.squeeze().numpy()
 
-    for train_idx, test_idx in loo.split(train_X):
-        X_train = train_X[train_idx]
-        Y_train = train_Y[train_idx]
-        Yvar_train = train_Yvar[train_idx]
-        X_test = train_X[test_idx]
+    n = train_X_np.shape[0]
+    preds = []
+    actuals = train_Y_np
 
-        gp, gp_mean, gp_var = train_gp_model(X_train, Y_train, Yvar_train, X_train, kernel)
-        gp.eval()
-        with torch.no_grad():
-            pred = gp.posterior(X_test).mean.item()
+    # Precompute K_train_train
+    K_full = compute_kernel_matrix(
+        train_X_np,
+        train_X_np,
+        kernel_func=kernel,
+        batch_size=batch_size,
+        save_dir=None,
+        return_file_paths=False,
+        verbose=False,
+    )
 
-        preds.append(pred)
-        actuals.append(train_Y[test_idx].item())
+    K_full = torch.tensor(K_full, dtype=torch.float64)
 
-    actuals = np.array(actuals)
+    # Compute LOO predictions
+    for i in range(n):
+        # Exclude i-th row and column
+        mask = np.arange(n) != i
+        K_loo = K_full[mask][:, mask]
+        k_i = K_full[mask, i]  # (n-1,)
+        y_loo = torch.tensor(train_Y_np[mask], dtype=torch.float64)
+
+        try:
+            K_inv = torch.linalg.inv(K_loo)
+        except RuntimeError:
+            print(f"[Warning] Matrix inversion failed at index {i}")
+            preds.append(np.nan)
+            continue
+
+        # μ_i = k_i^T @ K_inv @ y_loo
+        mu_i = (k_i @ K_inv @ y_loo).item()
+        preds.append(mu_i)
+
     preds = np.array(preds)
 
-    # Plotting
+    # Plot
     plt.figure(figsize=(6, 6))
     plt.scatter(preds, actuals, color="dodgerblue", edgecolors="k")
     min_val, max_val = min(actuals.min(), preds.min()), max(actuals.max(), preds.max())
@@ -114,6 +133,7 @@ def plot_loo_parity(train_X, train_Y, train_Yvar, kernel, save_path=None):
     plt.title("Leave-One-Out Parity Plot")
     plt.legend()
     plt.tight_layout()
+
     if save_path:
         plt.savefig(save_path, dpi=300)
     else:
