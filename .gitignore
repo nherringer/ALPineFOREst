@@ -35,4 +35,4 @@ venv/
 # Custom: simulation output directories (adjust as needed)
 *.lammpstrj
 *.traj
-
+cv_cutoffs.csv
