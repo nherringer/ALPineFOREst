@@ -9,99 +9,185 @@ from pathlib import Path
 import os
 import torch
 from typing import Optional
+from joblib import Parallel, delayed
 
-def gpytorch_kernel_wrapper(x1, x2, kernel=None):
-    """
-    Wraps a GPyTorch kernel for use with scikit-learn's pairwise_kernels.
+def gpytorch_kernel_wrapper(x1, x2, kernel):
+    x1_torch = torch.tensor(x1, dtype=torch.float32)
+    x2_torch = torch.tensor(x2, dtype=torch.float32)
 
-    Parameters:
-    - x1: ndarray of shape (n1, d)
-    - x2: ndarray of shape (n2, d)
-    - kernel: a GPyTorch kernel instance (must be set externally before use)
+    # Ensure shape [1, 1, D]
+    if x1_torch.dim() == 1:
+        x1_torch = x1_torch.unsqueeze(0).unsqueeze(0)
+    elif x1_torch.dim() == 2:
+        x1_torch = x1_torch.unsqueeze(1)
 
-    Returns:
-    - similarity matrix of shape (n1, n2)
-    """
-    if kernel is None:
-        raise ValueError("You must provide a GPyTorch kernel instance to gpytorch_kernel_wrapper.")
-    
-    # Convert to torch tensors with batch dimension
-    import torch
-    x1_torch = torch.tensor(x1).unsqueeze(1).double()
-    x2_torch = torch.tensor(x2).unsqueeze(1).double()
+    if x2_torch.dim() == 1:
+        x2_torch = x2_torch.unsqueeze(0).unsqueeze(0)
+    elif x2_torch.dim() == 2:
+        x2_torch = x2_torch.unsqueeze(1)
 
     with torch.no_grad():
         K = kernel(x1_torch, x2_torch).evaluate()
 
-    return K.numpy()
+    if K.shape == torch.Size([1, 1]):
+        K = K.unsqueeze(0)
 
-def compute_kernel_matrix(
-    X1,
-    X2,
-    kernel_func,
-    batch_size=1000,
-    save_dir=None,
-    prefix="K_test_train",
-    return_file_paths=True,
-    verbose=True,
-    Y_train=None,
-    clamp_var=1e-6,
-    model: Optional[FixedNoiseGP] = None
-):
+    # Final safety squeeze
+    return K.squeeze().item()  # return scalar
+
+def compute_kernel_matrix(X1, X2, kernel_func, save_dir=None, prefix="kernel",
+                          verbose=True, Y_train=None, clamp_var=1e-6, model=None):
     """
-    Compute and save the kernel similarity matrix between X1 and X2 in batches,
-    and compute posterior mean/variance for each batch if K_train_train and Y_train are provided.
+    Computes full kernel matrix between X1 and X2 in one shot using the provided kernel_func.
+    Also optionally computes posterior means/variances and saves everything to disk.
 
-    Returns:
-    - file_paths: list of paths to K_batch files (if return_file_paths is True)
+    Parameters
+    ----------
+    X1 : np.ndarray
+    X2 : np.ndarray
+    kernel_func : GPyTorch kernel
+    save_dir : str or Path
+    prefix : str
+    verbose : bool
+    Y_train : torch.Tensor or None
+    clamp_var : float
+    model : GP model (to unstandardize predictions)
+
+    Returns
+    -------
+    K_full : torch.Tensor
+        Full kernel matrix of shape (len(X1), len(X2))
+    means : torch.Tensor or None
+        Posterior mean predictions (only if Y_train is provided)
+    vars_ : torch.Tensor or None
+        Posterior variances (only if Y_train is provided)
     """
     if save_dir is not None:
-        os.makedirs(save_dir, exist_ok=True)
+        Path(save_dir).mkdir(parents=True, exist_ok=True)
 
-    n1 = X1.shape[0]
-    file_paths = []
+    if verbose:
+        print(f"[compute_kernel_matrix] Computing full kernel matrix ({len(X1)} x {len(X2)})...")
 
-    K_train_train = pairwise_kernels(
-            X2, X2, metric=lambda a, b: gpytorch_kernel_wrapper(a, b, kernel=kernel_func)
-        )
+    if isinstance(X1, torch.Tensor):
+        X1 = X1.cpu().detach().numpy()
+    if isinstance(X2, torch.Tensor):
+        X2 = X2.cpu().detach().numpy()
 
-    if Y_train is not None:
-        K_inv = torch.linalg.inv(K_train_train)
-        Y_train = Y_train.squeeze()
+    # If inputs are 1D arrays of indices, reshape to shape (n, 1)
+    #if X1.ndim == 1:
+    #    X1 = X1.reshape(-1, 1)
+    #if X2.ndim == 1:
+    #    X2 = X2.reshape(-1, 1)
 
-    for i in range(0, n1, batch_size):
-        X1_batch = X1[i : i + batch_size]
-        K_batch = pairwise_kernels(
-            X1_batch, X2, metric=lambda a, b: gpytorch_kernel_wrapper(a, b, kernel=kernel_func)
-        )
+    K_full = torch.tensor(pairwise_kernels(
+        X1, X2, metric=lambda a, b: gpytorch_kernel_wrapper(a, b, kernel=kernel_func)
+    ))
 
-        # Save kernel matrix batch
-        if save_dir is not None:
-            k_path = Path(save_dir) / f"{prefix}_{i:05d}.pkl"
-            joblib.dump(K_batch, k_path)
-            file_paths.append(str(k_path))
-
-        # === Posterior mean/var computation ===
-        if Y_train is not None:
-            K_test_batch = torch.tensor(K_batch, dtype=torch.float64)
-            means = K_test_batch @ K_inv @ Y_train
-            cov_term = torch.einsum("ij,jk,ik->i", K_test_batch, K_inv, K_test_batch)
-            K_diag = torch.ones_like(cov_term)  # assume normalized kernel
-            vars_ = (K_diag - cov_term).clamp(min=clamp_var)
-
-            if model is not None:
-                mu_Y = model.outcome_transform.means
-                std_Y = model.outcome_transform.stdvs
-                means = means * std_Y + mu_Y
-                vars_ = vars_ * (std_Y ** 2)
-            # Save mean and var
-            torch.save(means, Path(save_dir) / f"means_{i:05d}.pt")
-            torch.save(vars_, Path(save_dir) / f"vars_{i:05d}.pt")
-
+    if save_dir is not None:
+        k_path = Path(save_dir) / f"{prefix}_full.pkl"
+        joblib.dump(K_full, k_path)
+    if Y_train is None:
         if verbose:
-            print(f"[compute_kernel_matrix] Batch {i:05d}-{min(i+batch_size, n1):05d} processed.")
+            print("[compute_kernel_matrix] Done.")
+        return K_full
+    means, vars_ = None, None
+    if Y_train is not None:
+        try:
+            K_train_train = torch.tensor(joblib.load(Path(save_dir) / f"{prefix}_train_train.pkl"))
+        except FileNotFoundError:
+            K_train_train = torch.tensor(pairwise_kernels(
+                X2, X2, metric=lambda a, b: gpytorch_kernel_wrapper(a, b, kernel=kernel_func)
+            ))
+            joblib.dump(K_train_train, Path(save_dir) / f"{prefix}_train_train.pkl")
 
-    return file_paths if return_file_paths else None
+        K_inv = torch.inverse(K_train_train + clamp_var * torch.eye(K_train_train.shape[0]))
+        K_test_batch = K_full.to(dtype=torch.float64)
+
+        means = K_test_batch @ K_inv @ Y_train
+        cov_term = torch.einsum("ij,jk,ik->i", K_test_batch, K_inv, K_test_batch)
+        K_diag = torch.ones_like(cov_term)  # assume normalized kernel
+        vars_ = (K_diag - cov_term).clamp(min=clamp_var)
+
+        if model is not None:
+            mu_Y = model.outcome_transform.means
+            std_Y = model.outcome_transform.stdvs
+            means = means * std_Y + mu_Y
+            vars_ = vars_ * (std_Y ** 2)
+
+        if save_dir:
+            torch.save(means, Path(save_dir) / f"means_full.pt")
+            torch.save(vars_, Path(save_dir) / f"vars_full.pt")
+
+    if verbose:
+        print(f"[compute_kernel_matrix] Done.")
+
+    return K_full, means, vars_
+
+
+#def compute_kernel_matrix(X1, X2, kernel_func, save_dir=None, prefix="kernel",
+#                          verbose=True, Y_train=None, clamp_var=1e-6, model=None):
+#    """
+#    Computes full kernel matrix between X1 and X2 in one shot using the provided kernel_func.
+#    Also optionally computes posterior means/variances and saves everything to disk.
+#
+#    Parameters
+#    ----------
+#    X1 : np.ndarray
+#    X2 : np.ndarray
+#    kernel_func : GPyTorch kernel
+#    save_dir : str or Path
+#    prefix : str
+#    verbose : bool
+#    Y_train : torch.Tensor or None
+#    clamp_var : float
+#    model : GP model (to unstandardize predictions)
+#
+#    Returns
+#    -------
+#    None
+#    """
+#    if save_dir is not None:
+#        Path(save_dir).mkdir(parents=True, exist_ok=True)
+#
+#    if verbose:
+#        print(f"[compute_kernel_matrix] Computing full kernel matrix ({len(X1)} x {len(X2)})...")
+#
+#    K_full = torch.tensor(pairwise_kernels(
+#        X1, X2, metric=lambda a, b: gpytorch_kernel_wrapper(a, b, kernel=kernel_func)
+#    ))
+#
+#    if save_dir is not None:
+#        k_path = Path(save_dir) / f"{prefix}_full.pkl"
+#        joblib.dump(K_full, k_path)
+#
+#    if Y_train is not None:
+#        try:
+#            K_train_train = torch.tensor(joblib.load(Path(save_dir) / f"{prefix}_train_train.pkl"))
+#        except FileNotFoundError:
+#            K_train_train = torch.tensor(pairwise_kernels(
+#                X2, X2, metric=lambda a, b: gpytorch_kernel_wrapper(a, b, kernel=kernel_func)
+#            ))
+#            joblib.dump(K_train_train, Path(save_dir) / f"{prefix}_train_train.pkl")
+#
+#        K_inv = torch.inverse(K_train_train + clamp_var * torch.eye(K_train_train.shape[0]))
+#        K_test_batch = K_full.to(dtype=torch.float64)
+#
+#        means = K_test_batch @ K_inv @ Y_train
+#        cov_term = torch.einsum("ij,jk,ik->i", K_test_batch, K_inv, K_test_batch)
+#        K_diag = torch.ones_like(cov_term)  # assume normalized kernel
+#        vars_ = (K_diag - cov_term).clamp(min=clamp_var)
+#
+#        if model is not None:
+#            mu_Y = model.outcome_transform.means
+#            std_Y = model.outcome_transform.stdvs
+#            means = means * std_Y + mu_Y
+#            vars_ = vars_ * (std_Y ** 2)
+#
+#        torch.save(means, Path(save_dir) / f"means_full.pt")
+#        torch.save(vars_, Path(save_dir) / f"vars_full.pt")
+#
+#    if verbose:
+#        print(f"[compute_kernel_matrix] Done.")
 
 def load_kernel_matrix(path):
     """

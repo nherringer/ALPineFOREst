@@ -15,10 +15,8 @@ def train_gp_model(
     X_train: torch.Tensor,
     Y_train: torch.Tensor,
     Y_var: torch.Tensor,
-    X_pred: Optional[torch.Tensor] = None,
     kernel=None,
     standardize: bool = True,
-    batch_size: int = 1000,
 ) -> Tuple[FixedNoiseGP, torch.Tensor, torch.Tensor]:
     """
     Fit a GPyTorch + BoTorch GP model to labeled data using a custom kernel.
@@ -49,20 +47,22 @@ def train_gp_model(
     fit_gpytorch_model(mll, max_retries=10)
 
     model.eval()
-    if X_pred is not None:
-        K_test_train = compute_kernel_matrix(
-                        X1=X_pred,
-                        X2=X_train,
-                        kernel_func=model.covar_module,
-                        batch_size=batch_size,
-                        save_dir="kernels/",
-                        prefix="K_batch",
-                        return_file_paths=True,
-                        verbose=True,
-                        Y_train=Y_train,
-                        clamp_var=1e-6,
-                        model=model
-                        )
+#    if X_pred is not None:
+#        pred_post = model.posterior(X_pred)
+#        K_test_train = compute_kernel_matrix(
+#                        X1=X_pred,
+#                        X2=X_train,
+#                        kernel_func=model.covar_module,
+#                        batch_size=batch_size,
+#                        save_dir="kernels/",
+#                        prefix="K_batch",
+#                        return_file_paths=True,
+#                        verbose=True,
+#                        Y_train=Y_train,
+#                        clamp_var=1e-6,
+#                        model=model,
+#                        n_jobs=n_jobs
+#                        )
     return model
 
 def plot_loo_parity(train_X, train_Y, train_Yvar, kernel, save_path=None, batch_size=1000):
