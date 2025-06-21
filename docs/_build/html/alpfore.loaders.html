@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>alpfore.loaders package &#8212; ALPine_FOREst 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="alpfore.models package" href="alpfore.models.html" />
+    <link rel="prev" title="alpfore.evaluators package" href="alpfore.evaluators.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="alpfore-loaders-package">
+<h1>alpfore.loaders package<a class="headerlink" href="#alpfore-loaders-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-alpfore.loaders.colvar_loader">
+<span id="alpfore-loaders-colvar-loader-module"></span><h2>alpfore.loaders.colvar_loader module<a class="headerlink" href="#module-alpfore.loaders.colvar_loader" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.loaders.colvar_loader.COLVARLoader">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.loaders.colvar_loader.</code><code class="sig-name descname">COLVARLoader</code><span class="sig-paren">(</span><em class="sig-param">colvar_paths: List[pathlib.Path], features: numpy.ndarray, names: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.loaders.colvar_loader.COLVARLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="alpfore.loaders.colvar_loader.COLVARLoader.from_candidate_list">
+<em class="property">classmethod </em><code class="sig-name descname">from_candidate_list</code><span class="sig-paren">(</span><em class="sig-param">candidate_list: List[Tuple], encoder: alpfore.encoder.system_encoder.SystemEncoder, colvar_pattern: str, names: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.loaders.colvar_loader.COLVARLoader.from_candidate_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="alpfore.loaders.colvar_loader.COLVARLoader.join_all">
+<code class="sig-name descname">join_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; alpfore.trajectories.colvar_trajectory.COLVARTrajectory<a class="headerlink" href="#alpfore.loaders.colvar_loader.COLVARLoader.join_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate data from multiple COLVARTrajectories into one.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.loaders.colvar_loader.COLVARLoader.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; alpfore.core.trajectory_interface.Trajectory<a class="headerlink" href="#alpfore.loaders.colvar_loader.COLVARLoader.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.loaders.lammps_loader">
+<span id="alpfore-loaders-lammps-loader-module"></span><h2>alpfore.loaders.lammps_loader module<a class="headerlink" href="#module-alpfore.loaders.lammps_loader" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.loaders.lammps_loader.LAMMPSDumpLoader">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.loaders.lammps_loader.</code><code class="sig-name descname">LAMMPSDumpLoader</code><a class="headerlink" href="#alpfore.loaders.lammps_loader.LAMMPSDumpLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="alpfore.loaders.lammps_loader.LAMMPSDumpLoader.from_candidate_list">
+<em class="property">classmethod </em><code class="sig-name descname">from_candidate_list</code><span class="sig-paren">(</span><em class="sig-param">candidate_list</em>, <em class="sig-param">encoder</em>, <em class="sig-param">struct_pattern</em>, <em class="sig-param">traj_pattern</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.loaders.lammps_loader.LAMMPSDumpLoader.from_candidate_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.loaders">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-alpfore.loaders" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.loaders.LAMMPSDumpLoader">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.loaders.</code><code class="sig-name descname">LAMMPSDumpLoader</code><a class="headerlink" href="#alpfore.loaders.LAMMPSDumpLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="alpfore.loaders.LAMMPSDumpLoader.from_candidate_list">
+<em class="property">classmethod </em><code class="sig-name descname">from_candidate_list</code><span class="sig-paren">(</span><em class="sig-param">candidate_list</em>, <em class="sig-param">encoder</em>, <em class="sig-param">struct_pattern</em>, <em class="sig-param">traj_pattern</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.loaders.LAMMPSDumpLoader.from_candidate_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="alpfore.loaders.COLVARLoader">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.loaders.</code><code class="sig-name descname">COLVARLoader</code><span class="sig-paren">(</span><em class="sig-param">colvar_paths: List[pathlib.Path], features: numpy.ndarray, names: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.loaders.COLVARLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="alpfore.loaders.COLVARLoader.from_candidate_list">
+<em class="property">classmethod </em><code class="sig-name descname">from_candidate_list</code><span class="sig-paren">(</span><em class="sig-param">candidate_list: List[Tuple], encoder: alpfore.encoder.system_encoder.SystemEncoder, colvar_pattern: str, names: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.loaders.COLVARLoader.from_candidate_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="alpfore.loaders.COLVARLoader.join_all">
+<code class="sig-name descname">join_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; alpfore.trajectories.colvar_trajectory.COLVARTrajectory<a class="headerlink" href="#alpfore.loaders.COLVARLoader.join_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate data from multiple COLVARTrajectories into one.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.loaders.COLVARLoader.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; alpfore.core.trajectory_interface.Trajectory<a class="headerlink" href="#alpfore.loaders.COLVARLoader.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ALPine_FOREst</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">alpfore</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="alpfore.html">alpfore package</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">alpfore</a><ul>
+  <li><a href="alpfore.html">alpfore package</a><ul>
+      <li>Previous: <a href="alpfore.evaluators.html" title="previous chapter">alpfore.evaluators package</a></li>
+      <li>Next: <a href="alpfore.models.html" title="next chapter">alpfore.models package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, Nicholas Herringer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/alpfore.loaders.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

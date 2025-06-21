@@ -1,0 +1,372 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>alpfore.models package &#8212; ALPine_FOREst 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="alpfore.pipeline package" href="alpfore.pipeline.html" />
+    <link rel="prev" title="alpfore.loaders package" href="alpfore.loaders.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="alpfore-models-package">
+<h1>alpfore.models package<a class="headerlink" href="#alpfore-models-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-alpfore.models.gp_model">
+<span id="alpfore-models-gp-model-module"></span><h2>alpfore.models.gp_model module<a class="headerlink" href="#module-alpfore.models.gp_model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.models.gp_model.GPRModel">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.models.gp_model.</code><code class="sig-name descname">GPRModel</code><span class="sig-paren">(</span><em class="sig-param">X_train</em>, <em class="sig-param">Y_train</em>, <em class="sig-param">Yvar</em>, <em class="sig-param">kernel: gpytorch.kernels.kernel.Kernel</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.models.gp_model.GPRModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="alpfore.core.html#alpfore.core.model.BaseModel" title="alpfore.core.model.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">alpfore.core.model.BaseModel</span></code></a></p>
+<dl class="method">
+<dt id="alpfore.models.gp_model.GPRModel.X_train">
+<em class="property">property </em><code class="sig-name descname">X_train</code><a class="headerlink" href="#alpfore.models.gp_model.GPRModel.X_train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="alpfore.models.gp_model.GPRModel.Y_train">
+<em class="property">property </em><code class="sig-name descname">Y_train</code><a class="headerlink" href="#alpfore.models.gp_model.GPRModel.Y_train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="alpfore.models.gp_model.GPRModel.kernel_matrix">
+<code class="sig-name descname">kernel_matrix</code><span class="sig-paren">(</span><em class="sig-param">X1: numpy.ndarray</em>, <em class="sig-param">X2: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="headerlink" href="#alpfore.models.gp_model.GPRModel.kernel_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns kernel matrix K(X1, X2)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.models.gp_model.GPRModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">X: numpy.ndarray</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.models.gp_model.GPRModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns mean and variance predictions for inputs X</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.models.kernels">
+<span id="alpfore-models-kernels-module"></span><h2>alpfore.models.kernels module<a class="headerlink" href="#module-alpfore.models.kernels" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.models.kernels.CustomKernel">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.models.kernels.</code><code class="sig-name descname">CustomKernel</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.models.kernels.CustomKernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.kernels.kernel.Kernel</span></code></p>
+<p>Product kernel combining RBFs for scalar features and a Tanimoto kernel for sequences.</p>
+<dl class="method">
+<dt id="alpfore.models.kernels.CustomKernel.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">x1</em>, <em class="sig-param">x2</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.models.kernels.CustomKernel.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance between x1 and x2.
+This method should be imlemented by all Kernel subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (Tensor <cite>n x d</cite> or <cite>b x n x d</cite>) – First set of data</p></li>
+<li><p><strong>x2</strong> (Tensor <cite>m x d</cite> or <cite>b x m x d</cite>) – Second set of data</p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole kernel, or just the diag?</p></li>
+<li><p><strong>last_dim_is_batch</strong> (<em>tuple</em><em>, </em><em>optional</em>) – If this is true, it treats the last dimension of the data as another batch dimension.
+(Useful for additive structure over the dimensions). Default: False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.lazy.LazyTensor</span></code>.</dt><dd><p>The exact size depends on the kernel’s evaluation mode:</p>
+<ul class="simple">
+<li><p><cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite></p></li>
+<li><p><cite>full_covar</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n x m</cite> or <cite>b x k x n x m</cite></p></li>
+<li><p><cite>diag</cite>: <cite>n</cite> or <cite>b x n</cite></p></li>
+<li><p><cite>diag</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n</cite> or <cite>b x k x n</cite></p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="alpfore.models.kernels.TanimotoKernel">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.models.kernels.</code><code class="sig-name descname">TanimotoKernel</code><span class="sig-paren">(</span><em class="sig-param">ard_num_dims: Optional[int] = None</em>, <em class="sig-param">batch_shape: Optional[torch.Size] = torch.Size([])</em>, <em class="sig-param">active_dims: Optional[Tuple[int</em>, <em class="sig-param">...]] = None</em>, <em class="sig-param">lengthscale_prior: Optional[gpytorch.priors.prior.Prior] = None</em>, <em class="sig-param">lengthscale_constraint: Optional[gpytorch.constraints.constraints.Interval] = None</em>, <em class="sig-param">eps: Optional[float] = 1e-06</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.models.kernels.TanimotoKernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.kernels.kernel.Kernel</span></code></p>
+<p>Implements the Tanimoto similarity kernel for binary sequence vectors.</p>
+<dl class="method">
+<dt id="alpfore.models.kernels.TanimotoKernel.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">x1</em>, <em class="sig-param">x2</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.models.kernels.TanimotoKernel.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance between x1 and x2.
+This method should be imlemented by all Kernel subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (Tensor <cite>n x d</cite> or <cite>b x n x d</cite>) – First set of data</p></li>
+<li><p><strong>x2</strong> (Tensor <cite>m x d</cite> or <cite>b x m x d</cite>) – Second set of data</p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole kernel, or just the diag?</p></li>
+<li><p><strong>last_dim_is_batch</strong> (<em>tuple</em><em>, </em><em>optional</em>) – If this is true, it treats the last dimension of the data as another batch dimension.
+(Useful for additive structure over the dimensions). Default: False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.lazy.LazyTensor</span></code>.</dt><dd><p>The exact size depends on the kernel’s evaluation mode:</p>
+<ul class="simple">
+<li><p><cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite></p></li>
+<li><p><cite>full_covar</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n x m</cite> or <cite>b x k x n x m</cite></p></li>
+<li><p><cite>diag</cite>: <cite>n</cite> or <cite>b x n</cite></p></li>
+<li><p><cite>diag</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n</cite> or <cite>b x k x n</cite></p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="alpfore.models.kernels.TanimotoKernel.has_lengthscale">
+<code class="sig-name descname">has_lengthscale</code><em class="property"> = True</em><a class="headerlink" href="#alpfore.models.kernels.TanimotoKernel.has_lengthscale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.models.trainer">
+<span id="alpfore-models-trainer-module"></span><h2>alpfore.models.trainer module<a class="headerlink" href="#module-alpfore.models.trainer" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="alpfore.models.trainer.train_gp_model">
+<code class="sig-prename descclassname">alpfore.models.trainer.</code><code class="sig-name descname">train_gp_model</code><span class="sig-paren">(</span><em class="sig-param">X_train: torch.Tensor</em>, <em class="sig-param">Y_train: torch.Tensor</em>, <em class="sig-param">Y_var: torch.Tensor</em>, <em class="sig-param">kernel=None</em>, <em class="sig-param">standardize: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[botorch.models.gp_regression.FixedNoiseGP]<a class="headerlink" href="#alpfore.models.trainer.train_gp_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a GPyTorch + BoTorch GP model to labeled data using a custom kernel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> – [n, d] input tensor.</p></li>
+<li><p><strong>Y_train</strong> – [n, 1] target values.</p></li>
+<li><p><strong>Y_var</strong> – [n, 1] variances (squared SEM).</p></li>
+<li><p><strong>kernel</strong> – GPyTorch kernel instance (e.g., CustomKernel()).</p></li>
+<li><p><strong>standardize</strong> – Whether to apply outcome standardization.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Trained GP model.
+mean: Posterior mean (unstandardized if standardize=True).
+variance: Posterior variance (unstandardized if standardize=True).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.models">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-alpfore.models" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="alpfore.models.train_gp_model">
+<code class="sig-prename descclassname">alpfore.models.</code><code class="sig-name descname">train_gp_model</code><span class="sig-paren">(</span><em class="sig-param">X_train: torch.Tensor</em>, <em class="sig-param">Y_train: torch.Tensor</em>, <em class="sig-param">Y_var: torch.Tensor</em>, <em class="sig-param">kernel=None</em>, <em class="sig-param">standardize: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[botorch.models.gp_regression.FixedNoiseGP]<a class="headerlink" href="#alpfore.models.train_gp_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a GPyTorch + BoTorch GP model to labeled data using a custom kernel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> – [n, d] input tensor.</p></li>
+<li><p><strong>Y_train</strong> – [n, 1] target values.</p></li>
+<li><p><strong>Y_var</strong> – [n, 1] variances (squared SEM).</p></li>
+<li><p><strong>kernel</strong> – GPyTorch kernel instance (e.g., CustomKernel()).</p></li>
+<li><p><strong>standardize</strong> – Whether to apply outcome standardization.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Trained GP model.
+mean: Posterior mean (unstandardized if standardize=True).
+variance: Posterior variance (unstandardized if standardize=True).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="alpfore.models.TanimotoKernel">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.models.</code><code class="sig-name descname">TanimotoKernel</code><span class="sig-paren">(</span><em class="sig-param">ard_num_dims: Optional[int] = None</em>, <em class="sig-param">batch_shape: Optional[torch.Size] = torch.Size([])</em>, <em class="sig-param">active_dims: Optional[Tuple[int</em>, <em class="sig-param">...]] = None</em>, <em class="sig-param">lengthscale_prior: Optional[gpytorch.priors.prior.Prior] = None</em>, <em class="sig-param">lengthscale_constraint: Optional[gpytorch.constraints.constraints.Interval] = None</em>, <em class="sig-param">eps: Optional[float] = 1e-06</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.models.TanimotoKernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.kernels.kernel.Kernel</span></code></p>
+<p>Implements the Tanimoto similarity kernel for binary sequence vectors.</p>
+<dl class="method">
+<dt id="alpfore.models.TanimotoKernel.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">x1</em>, <em class="sig-param">x2</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.models.TanimotoKernel.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance between x1 and x2.
+This method should be imlemented by all Kernel subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (Tensor <cite>n x d</cite> or <cite>b x n x d</cite>) – First set of data</p></li>
+<li><p><strong>x2</strong> (Tensor <cite>m x d</cite> or <cite>b x m x d</cite>) – Second set of data</p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole kernel, or just the diag?</p></li>
+<li><p><strong>last_dim_is_batch</strong> (<em>tuple</em><em>, </em><em>optional</em>) – If this is true, it treats the last dimension of the data as another batch dimension.
+(Useful for additive structure over the dimensions). Default: False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.lazy.LazyTensor</span></code>.</dt><dd><p>The exact size depends on the kernel’s evaluation mode:</p>
+<ul class="simple">
+<li><p><cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite></p></li>
+<li><p><cite>full_covar</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n x m</cite> or <cite>b x k x n x m</cite></p></li>
+<li><p><cite>diag</cite>: <cite>n</cite> or <cite>b x n</cite></p></li>
+<li><p><cite>diag</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n</cite> or <cite>b x k x n</cite></p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="alpfore.models.TanimotoKernel.has_lengthscale">
+<code class="sig-name descname">has_lengthscale</code><em class="property"> = True</em><a class="headerlink" href="#alpfore.models.TanimotoKernel.has_lengthscale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="alpfore.models.CustomKernel">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.models.</code><code class="sig-name descname">CustomKernel</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.models.CustomKernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.kernels.kernel.Kernel</span></code></p>
+<p>Product kernel combining RBFs for scalar features and a Tanimoto kernel for sequences.</p>
+<dl class="method">
+<dt id="alpfore.models.CustomKernel.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">x1</em>, <em class="sig-param">x2</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.models.CustomKernel.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance between x1 and x2.
+This method should be imlemented by all Kernel subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (Tensor <cite>n x d</cite> or <cite>b x n x d</cite>) – First set of data</p></li>
+<li><p><strong>x2</strong> (Tensor <cite>m x d</cite> or <cite>b x m x d</cite>) – Second set of data</p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole kernel, or just the diag?</p></li>
+<li><p><strong>last_dim_is_batch</strong> (<em>tuple</em><em>, </em><em>optional</em>) – If this is true, it treats the last dimension of the data as another batch dimension.
+(Useful for additive structure over the dimensions). Default: False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.lazy.LazyTensor</span></code>.</dt><dd><p>The exact size depends on the kernel’s evaluation mode:</p>
+<ul class="simple">
+<li><p><cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite></p></li>
+<li><p><cite>full_covar</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n x m</cite> or <cite>b x k x n x m</cite></p></li>
+<li><p><cite>diag</cite>: <cite>n</cite> or <cite>b x n</cite></p></li>
+<li><p><cite>diag</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n</cite> or <cite>b x k x n</cite></p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ALPine_FOREst</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">alpfore</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="alpfore.html">alpfore package</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">alpfore</a><ul>
+  <li><a href="alpfore.html">alpfore package</a><ul>
+      <li>Previous: <a href="alpfore.loaders.html" title="previous chapter">alpfore.loaders package</a></li>
+      <li>Next: <a href="alpfore.pipeline.html" title="next chapter">alpfore.pipeline package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, Nicholas Herringer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/alpfore.models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

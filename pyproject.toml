@@ -2,9 +2,20 @@
 name = "alpfore"
 version = "0.1.0"
 description = "Active Learning Pipeline For Optimal Ranking Estimation"
-authors = ["nherringer <nherringer@uchicago.edu>"]
+authors = ["Nicholas Herringer <nherringer@uchicago.edu>"]
 readme = "README.md"
 packages = [{ include = "alpfore", from = "src" }]
+license = "MIT"
+
+homepage = "https://github.com/nherringer/ALPineFOREst"
+repository = "https://github.com/nherringer/ALPineFOREst"
+keywords = ["active learning", "molecular simulation", "machine learning"]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -16,5 +27,5 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
-[project.scripts]
+[tool.poetry.scripts]
 alpfore = "alpfore.cli:app"

@@ -7,7 +7,6 @@ from botorch.fit import fit_gpytorch_model
 from botorch.models.transforms.outcome import Standardize
 from typing import Tuple, Optional
 import matplotlib.pyplot as plt
-from sklearn.model_selection import LeaveOneOut
 from alpfore.utils.kernel_utils import compute_kernel_matrix, gpytorch_kernel_wrapper 
 
 
@@ -49,6 +48,7 @@ def train_gp_model(
     model.eval()
     return model
 
+# from sklearn.model_selection import LeaveOneOut
 # def plot_loo_parity(train_X, train_Y, train_Yvar, kernel, save_path=None, batch_size=1000):
 #     """
 #     Leave-one-out cross-validation using matrix-based kernel prediction.

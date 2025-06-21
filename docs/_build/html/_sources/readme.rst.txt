@@ -1,2 +1,1 @@
-# ALPineFOREst
 .. include:: ../README.rst
