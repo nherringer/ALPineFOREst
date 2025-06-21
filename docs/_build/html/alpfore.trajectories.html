@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>alpfore.trajectories package &#8212; ALPine_FOREst 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="alpfore.utils package" href="alpfore.utils.html" />
+    <link rel="prev" title="alpfore.pipeline package" href="alpfore.pipeline.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="alpfore-trajectories-package">
+<h1>alpfore.trajectories package<a class="headerlink" href="#alpfore-trajectories-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-alpfore.trajectories.colvar_trajectory">
+<span id="alpfore-trajectories-colvar-trajectory-module"></span><h2>alpfore.trajectories.colvar_trajectory module<a class="headerlink" href="#module-alpfore.trajectories.colvar_trajectory" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.trajectories.colvar_trajectory.COLVARTrajectory">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.trajectories.colvar_trajectory.</code><code class="sig-name descname">COLVARTrajectory</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">run_dir: pathlib.Path</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.trajectories.colvar_trajectory.COLVARTrajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="alpfore.core.html#alpfore.core.trajectory_interface.Trajectory" title="alpfore.core.trajectory_interface.Trajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">alpfore.core.trajectory_interface.Trajectory</span></code></a></p>
+<dl class="method">
+<dt id="alpfore.trajectories.colvar_trajectory.COLVARTrajectory.get_cv">
+<code class="sig-name descname">get_cv</code><span class="sig-paren">(</span><em class="sig-param">key: str</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.trajectories.colvar_trajectory.COLVARTrajectory.get_cv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a collective variable vector for this key, if available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.trajectories.colvar_trajectory.COLVARTrajectory.n_frames">
+<code class="sig-name descname">n_frames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.trajectories.colvar_trajectory.COLVARTrajectory.n_frames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.trajectories.lammps_trajectory">
+<span id="alpfore-trajectories-lammps-trajectory-module"></span><h2>alpfore.trajectories.lammps_trajectory module<a class="headerlink" href="#module-alpfore.trajectories.lammps_trajectory" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.trajectories.lammps_trajectory.LAMMPSTrajectory">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.trajectories.lammps_trajectory.</code><code class="sig-name descname">LAMMPSTrajectory</code><span class="sig-paren">(</span><em class="sig-param">trajs: Union[mdtraj.core.trajectory.Trajectory, List[mdtraj.core.trajectory.Trajectory]], run_dir: pathlib.Path</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.trajectories.lammps_trajectory.LAMMPSTrajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="alpfore.core.html#alpfore.core.trajectory_interface.Trajectory" title="alpfore.core.trajectory_interface.Trajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">alpfore.core.trajectory_interface.Trajectory</span></code></a></p>
+<dl class="method">
+<dt id="alpfore.trajectories.lammps_trajectory.LAMMPSTrajectory.join_all">
+<code class="sig-name descname">join_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.trajectories.lammps_trajectory.LAMMPSTrajectory.join_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a single trajectory or dataframe joined across walkers (if applicable).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.trajectories.lammps_trajectory.LAMMPSTrajectory.mdtraj">
+<code class="sig-name descname">mdtraj</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; mdtraj.core.trajectory.Trajectory<a class="headerlink" href="#alpfore.trajectories.lammps_trajectory.LAMMPSTrajectory.mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the underlying mdtraj.Trajectory, if available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.trajectories.lammps_trajectory.LAMMPSTrajectory.n_frames">
+<code class="sig-name descname">n_frames</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#alpfore.trajectories.lammps_trajectory.LAMMPSTrajectory.n_frames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.trajectories">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-alpfore.trajectories" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.trajectories.LAMMPSTrajectory">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.trajectories.</code><code class="sig-name descname">LAMMPSTrajectory</code><span class="sig-paren">(</span><em class="sig-param">trajs: Union[mdtraj.core.trajectory.Trajectory, List[mdtraj.core.trajectory.Trajectory]], run_dir: pathlib.Path</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.trajectories.LAMMPSTrajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="alpfore.core.html#alpfore.core.trajectory_interface.Trajectory" title="alpfore.core.trajectory_interface.Trajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">alpfore.core.trajectory_interface.Trajectory</span></code></a></p>
+<dl class="method">
+<dt id="alpfore.trajectories.LAMMPSTrajectory.join_all">
+<code class="sig-name descname">join_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.trajectories.LAMMPSTrajectory.join_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a single trajectory or dataframe joined across walkers (if applicable).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.trajectories.LAMMPSTrajectory.mdtraj">
+<code class="sig-name descname">mdtraj</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; mdtraj.core.trajectory.Trajectory<a class="headerlink" href="#alpfore.trajectories.LAMMPSTrajectory.mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the underlying mdtraj.Trajectory, if available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.trajectories.LAMMPSTrajectory.n_frames">
+<code class="sig-name descname">n_frames</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#alpfore.trajectories.LAMMPSTrajectory.n_frames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="alpfore.trajectories.COLVARTrajectory">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.trajectories.</code><code class="sig-name descname">COLVARTrajectory</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">run_dir: pathlib.Path</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.trajectories.COLVARTrajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="alpfore.core.html#alpfore.core.trajectory_interface.Trajectory" title="alpfore.core.trajectory_interface.Trajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">alpfore.core.trajectory_interface.Trajectory</span></code></a></p>
+<dl class="method">
+<dt id="alpfore.trajectories.COLVARTrajectory.get_cv">
+<code class="sig-name descname">get_cv</code><span class="sig-paren">(</span><em class="sig-param">key: str</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.trajectories.COLVARTrajectory.get_cv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a collective variable vector for this key, if available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.trajectories.COLVARTrajectory.n_frames">
+<code class="sig-name descname">n_frames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.trajectories.COLVARTrajectory.n_frames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ALPine_FOREst</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">alpfore</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="alpfore.html">alpfore package</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">alpfore</a><ul>
+  <li><a href="alpfore.html">alpfore package</a><ul>
+      <li>Previous: <a href="alpfore.pipeline.html" title="previous chapter">alpfore.pipeline package</a></li>
+      <li>Next: <a href="alpfore.utils.html" title="next chapter">alpfore.utils package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, Nicholas Herringer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/alpfore.trajectories.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

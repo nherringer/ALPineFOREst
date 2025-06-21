@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>alpfore.core package &#8212; ALPine_FOREst 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="alpfore.encoder package" href="alpfore.encoder.html" />
+    <link rel="prev" title="alpfore.candidate_selectors package" href="alpfore.candidate_selectors.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="alpfore-core-package">
+<h1>alpfore.core package<a class="headerlink" href="#alpfore-core-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-alpfore.core.candidate_selector">
+<span id="alpfore-core-candidate-selector-module"></span><h2>alpfore.core.candidate_selector module<a class="headerlink" href="#module-alpfore.core.candidate_selector" title="Permalink to this headline">¶</a></h2>
+<p>Core abstractions for the <em>Candidate‑Selection</em> stage of ALPine FOREst.</p>
+<p>A Selector takes a fitted model and proposes the next batch of input vectors
+to evaluate (Bayesian optimisation, Thompson sampling, random, …).</p>
+<p>Concrete implementations belong in <code class="docutils literal notranslate"><span class="pre">alpfore.selectors.*</span></code>.</p>
+<dl class="class">
+<dt id="alpfore.core.candidate_selector.BaseSelector">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.core.candidate_selector.</code><code class="sig-name descname">BaseSelector</code><a class="headerlink" href="#alpfore.core.candidate_selector.BaseSelector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Abstract contract for proposing new candidates.</p>
+<dl class="attribute">
+<dt id="alpfore.core.candidate_selector.BaseSelector.batch_size">
+<code class="sig-name descname">batch_size</code><em class="property"> = 1</em><a class="headerlink" href="#alpfore.core.candidate_selector.BaseSelector.batch_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.candidate_selector.BaseSelector.select">
+<em class="property">abstract </em><code class="sig-name descname">select</code><span class="sig-paren">(</span><em class="sig-param">model: BaseModel</em>, <em class="sig-param">search_space: np.ndarray</em><span class="sig-paren">)</span> &#x2192; np.ndarray<a class="headerlink" href="#alpfore.core.candidate_selector.BaseSelector.select" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – A fitted surrogate model.</p></li>
+<li><p><strong>search_space</strong> – Array of shape (N_pool, d) representing possible inputs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Batch of input vectors, shape <code class="docutils literal notranslate"><span class="pre">(self.batch_size,</span> <span class="pre">d)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.core.evaluator">
+<span id="alpfore-core-evaluator-module"></span><h2>alpfore.core.evaluator module<a class="headerlink" href="#module-alpfore.core.evaluator" title="Permalink to this headline">¶</a></h2>
+<p>Core abstractions for the <em>Evaluation</em> stage of ALPine FOREst.</p>
+<p>A concrete Evaluator transforms a Trajectory into <strong>per‑frame target values</strong> Y
+(e.g. hybridization fraction, RMSD, etc.).  The shape contract is</p>
+<blockquote>
+<div><p>Y.shape == (n_frames, output_dim)</p>
+</div></blockquote>
+<p>so that downstream models know the dimensionality of the quantity being
+predicted.</p>
+<p>Only the abstract interface lives here—no heavy MD/ML libraries are imported.
+Concrete implementations belong in <code class="docutils literal notranslate"><span class="pre">alpfore.evaluations.*</span></code>.</p>
+<dl class="class">
+<dt id="alpfore.core.evaluator.BaseEvaluator">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.core.evaluator.</code><code class="sig-name descname">BaseEvaluator</code><a class="headerlink" href="#alpfore.core.evaluator.BaseEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Transform a trajectory into target values <em>Y</em>.</p>
+<p>Sub‑classes <strong>must</strong> set <code class="docutils literal notranslate"><span class="pre">output_dim</span></code> (class attribute) and implement
+<code class="docutils literal notranslate"><span class="pre">evaluate</span></code>.</p>
+<dl class="method">
+<dt id="alpfore.core.evaluator.BaseEvaluator.evaluate">
+<em class="property">abstract </em><code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">traj: Trajectory</em><span class="sig-paren">)</span> &#x2192; np.ndarray<a class="headerlink" href="#alpfore.core.evaluator.BaseEvaluator.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>traj</strong> – Trajectory returned by a Simulation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Shape <code class="docutils literal notranslate"><span class="pre">(n_frames,</span> <span class="pre">self.output_dim)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.core.loader">
+<span id="alpfore-core-loader-module"></span><h2>alpfore.core.loader module<a class="headerlink" href="#module-alpfore.core.loader" title="Permalink to this headline">¶</a></h2>
+<p>Core abstractions for the <em>Loader</em> stage of ALPine FOREst.</p>
+<p>A concrete Loader subclass is expected to:
+1.  Generate or load trajectory data (e.g. launch LAMMPS, read a dump file).
+2.  Return an object that exposes <cite>frame_descriptors()</cite> so the pipeline can</p>
+<blockquote>
+<div><p>turn frames into input vectors for the model.</p>
+</div></blockquote>
+<p>Only the abstract interface lives here—no heavy MD libraries are imported.
+Concrete implementations belong in <cite>alpfore.loaders.*</cite>.</p>
+<dl class="class">
+<dt id="alpfore.core.loader.BaseLoader">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.core.loader.</code><code class="sig-name descname">BaseLoader</code><a class="headerlink" href="#alpfore.core.loader.BaseLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Abstract contract for the loader stage.</p>
+<dl class="method">
+<dt id="alpfore.core.loader.BaseLoader.run">
+<em class="property">abstract </em><code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; alpfore.core.trajectory_interface.Trajectory<a class="headerlink" href="#alpfore.core.loader.BaseLoader.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data and return a Trajectory.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.core.model">
+<span id="alpfore-core-model-module"></span><h2>alpfore.core.model module<a class="headerlink" href="#module-alpfore.core.model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.core.model.BaseModel">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.core.model.</code><code class="sig-name descname">BaseModel</code><a class="headerlink" href="#alpfore.core.model.BaseModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="alpfore.core.model.BaseModel.X_train">
+<em class="property">abstract property </em><code class="sig-name descname">X_train</code><a class="headerlink" href="#alpfore.core.model.BaseModel.X_train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.model.BaseModel.Y_train">
+<em class="property">abstract property </em><code class="sig-name descname">Y_train</code><a class="headerlink" href="#alpfore.core.model.BaseModel.Y_train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.model.BaseModel.kernel_matrix">
+<em class="property">abstract </em><code class="sig-name descname">kernel_matrix</code><span class="sig-paren">(</span><em class="sig-param">X1: numpy.ndarray</em>, <em class="sig-param">X2: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="headerlink" href="#alpfore.core.model.BaseModel.kernel_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns kernel matrix K(X1, X2)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.model.BaseModel.predict">
+<em class="property">abstract </em><code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">X: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, numpy.ndarray]<a class="headerlink" href="#alpfore.core.model.BaseModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns mean and variance predictions for inputs X</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.core.trajectory_interface">
+<span id="alpfore-core-trajectory-interface-module"></span><h2>alpfore.core.trajectory_interface module<a class="headerlink" href="#module-alpfore.core.trajectory_interface" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.core.trajectory_interface.Trajectory">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.core.trajectory_interface.</code><code class="sig-name descname">Trajectory</code><span class="sig-paren">(</span><em class="sig-param">run_dir: pathlib.Path</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.core.trajectory_interface.Trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="alpfore.core.trajectory_interface.Trajectory.get_cv">
+<code class="sig-name descname">get_cv</code><span class="sig-paren">(</span><em class="sig-param">key: str</em><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#alpfore.core.trajectory_interface.Trajectory.get_cv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a collective variable vector for this key, if available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.trajectory_interface.Trajectory.join_all">
+<code class="sig-name descname">join_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.core.trajectory_interface.Trajectory.join_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a single trajectory or dataframe joined across walkers (if applicable).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.trajectory_interface.Trajectory.mdtraj">
+<code class="sig-name descname">mdtraj</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#alpfore.core.trajectory_interface.Trajectory.mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the underlying mdtraj.Trajectory, if available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.trajectory_interface.Trajectory.n_frames">
+<code class="sig-name descname">n_frames</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#alpfore.core.trajectory_interface.Trajectory.n_frames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.core">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-alpfore.core" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.core.Trajectory">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.core.</code><code class="sig-name descname">Trajectory</code><span class="sig-paren">(</span><em class="sig-param">run_dir: pathlib.Path</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.core.Trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="alpfore.core.Trajectory.get_cv">
+<code class="sig-name descname">get_cv</code><span class="sig-paren">(</span><em class="sig-param">key: str</em><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#alpfore.core.Trajectory.get_cv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a collective variable vector for this key, if available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.Trajectory.join_all">
+<code class="sig-name descname">join_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.core.Trajectory.join_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a single trajectory or dataframe joined across walkers (if applicable).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.Trajectory.mdtraj">
+<code class="sig-name descname">mdtraj</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#alpfore.core.Trajectory.mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the underlying mdtraj.Trajectory, if available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.Trajectory.n_frames">
+<code class="sig-name descname">n_frames</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#alpfore.core.Trajectory.n_frames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="alpfore.core.BaseEvaluator">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.core.</code><code class="sig-name descname">BaseEvaluator</code><a class="headerlink" href="#alpfore.core.BaseEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Transform a trajectory into target values <em>Y</em>.</p>
+<p>Sub‑classes <strong>must</strong> set <code class="docutils literal notranslate"><span class="pre">output_dim</span></code> (class attribute) and implement
+<code class="docutils literal notranslate"><span class="pre">evaluate</span></code>.</p>
+<dl class="method">
+<dt id="alpfore.core.BaseEvaluator.evaluate">
+<em class="property">abstract </em><code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">traj: Trajectory</em><span class="sig-paren">)</span> &#x2192; np.ndarray<a class="headerlink" href="#alpfore.core.BaseEvaluator.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>traj</strong> – Trajectory returned by a Simulation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Shape <code class="docutils literal notranslate"><span class="pre">(n_frames,</span> <span class="pre">self.output_dim)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="alpfore.core.BaseModel">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.core.</code><code class="sig-name descname">BaseModel</code><a class="headerlink" href="#alpfore.core.BaseModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="alpfore.core.BaseModel.X_train">
+<em class="property">abstract property </em><code class="sig-name descname">X_train</code><a class="headerlink" href="#alpfore.core.BaseModel.X_train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.BaseModel.Y_train">
+<em class="property">abstract property </em><code class="sig-name descname">Y_train</code><a class="headerlink" href="#alpfore.core.BaseModel.Y_train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.BaseModel.kernel_matrix">
+<em class="property">abstract </em><code class="sig-name descname">kernel_matrix</code><span class="sig-paren">(</span><em class="sig-param">X1: numpy.ndarray</em>, <em class="sig-param">X2: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="headerlink" href="#alpfore.core.BaseModel.kernel_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns kernel matrix K(X1, X2)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alpfore.core.BaseModel.predict">
+<em class="property">abstract </em><code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">X: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, numpy.ndarray]<a class="headerlink" href="#alpfore.core.BaseModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns mean and variance predictions for inputs X</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ALPine_FOREst</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">alpfore</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="alpfore.html">alpfore package</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">alpfore</a><ul>
+  <li><a href="alpfore.html">alpfore package</a><ul>
+      <li>Previous: <a href="alpfore.candidate_selectors.html" title="previous chapter">alpfore.candidate_selectors package</a></li>
+      <li>Next: <a href="alpfore.encoder.html" title="next chapter">alpfore.encoder package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, Nicholas Herringer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/alpfore.core.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>alpfore.utils package &#8212; ALPine_FOREst 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="contributing.html" />
+    <link rel="prev" title="alpfore.trajectories package" href="alpfore.trajectories.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="alpfore-utils-package">
+<h1>alpfore.utils package<a class="headerlink" href="#alpfore-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-alpfore.utils.dataset_utils">
+<span id="alpfore-utils-dataset-utils-module"></span><h2>alpfore.utils.dataset_utils module<a class="headerlink" href="#module-alpfore.utils.dataset_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="alpfore.utils.dataset_utils.append_new_data">
+<code class="sig-prename descclassname">alpfore.utils.dataset_utils.</code><code class="sig-name descname">append_new_data</code><span class="sig-paren">(</span><em class="sig-param">previous: pandas.core.frame.DataFrame</em>, <em class="sig-param">new: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#alpfore.utils.dataset_utils.append_new_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append new evaluation data to prior labeled dataset.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.dataset_utils.load_labeled_dataset">
+<code class="sig-prename descclassname">alpfore.utils.dataset_utils.</code><code class="sig-name descname">load_labeled_dataset</code><span class="sig-paren">(</span><em class="sig-param">path: pathlib.Path</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#alpfore.utils.dataset_utils.load_labeled_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load labeled dataset from CSV.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.dataset_utils.make_labeled_dataset">
+<code class="sig-prename descclassname">alpfore.utils.dataset_utils.</code><code class="sig-name descname">make_labeled_dataset</code><span class="sig-paren">(</span><em class="sig-param">candidate_list: List[Tuple], ddg_results: List[Tuple[float, float]]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#alpfore.utils.dataset_utils.make_labeled_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a labeled dataset with features + ddG + SEM.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.dataset_utils.save_labeled_dataset">
+<code class="sig-prename descclassname">alpfore.utils.dataset_utils.</code><code class="sig-name descname">save_labeled_dataset</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">path: pathlib.Path</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.dataset_utils.save_labeled_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save labeled dataset to CSV with header.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.utils.kernel_utils">
+<span id="alpfore-utils-kernel-utils-module"></span><h2>alpfore.utils.kernel_utils module<a class="headerlink" href="#module-alpfore.utils.kernel_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="alpfore.utils.kernel_utils.compute_kernel_matrix">
+<code class="sig-prename descclassname">alpfore.utils.kernel_utils.</code><code class="sig-name descname">compute_kernel_matrix</code><span class="sig-paren">(</span><em class="sig-param">X1</em>, <em class="sig-param">X2</em>, <em class="sig-param">kernel_func</em>, <em class="sig-param">save_dir=None</em>, <em class="sig-param">prefix='kernel'</em>, <em class="sig-param">verbose=True</em>, <em class="sig-param">Y_train=None</em>, <em class="sig-param">clamp_var=1e-06</em>, <em class="sig-param">model=None</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.kernel_utils.compute_kernel_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes full kernel matrix between X1 and X2 in one shot using the provided kernel_func.
+Also optionally computes posterior means/variances and saves everything to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X1</strong> (<em>np.ndarray</em>) – </p></li>
+<li><p><strong>X2</strong> (<em>np.ndarray</em>) – </p></li>
+<li><p><strong>kernel_func</strong> (<em>GPyTorch kernel</em>) – </p></li>
+<li><p><strong>save_dir</strong> (<em>str</em><em> or </em><em>Path</em>) – </p></li>
+<li><p><strong>prefix</strong> (<em>str</em>) – </p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>Y_train</strong> (<em>torch.Tensor</em><em> or </em><em>None</em>) – </p></li>
+<li><p><strong>clamp_var</strong> (<em>float</em>) – </p></li>
+<li><p><strong>model</strong> (<em>GP model</em><em> (</em><em>to unstandardize predictions</em><em>)</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>K_full</strong> (<em>torch.Tensor</em>) – Full kernel matrix of shape (len(X1), len(X2))</p></li>
+<li><p><strong>means</strong> (<em>torch.Tensor or None</em>) – Posterior mean predictions (only if Y_train is provided)</p></li>
+<li><p><strong>vars_</strong> (<em>torch.Tensor or None</em>) – Posterior variances (only if Y_train is provided)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.kernel_utils.compute_kernel_pca">
+<code class="sig-prename descclassname">alpfore.utils.kernel_utils.</code><code class="sig-name descname">compute_kernel_pca</code><span class="sig-paren">(</span><em class="sig-param">K_train_train</em>, <em class="sig-param">n_components=2</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.kernel_utils.compute_kernel_pca" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform kernel PCA given a precomputed train-train kernel matrix.</p>
+<p>Parameters:
+- K_train_train: ndarray, shape (n_train, n_train)
+- n_components: int, number of KPCs to retain</p>
+<p>Returns:
+- kpca: fitted KernelPCA object
+- transformed_train: shape (n_train, n_components)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.kernel_utils.gpytorch_kernel_wrapper">
+<code class="sig-prename descclassname">alpfore.utils.kernel_utils.</code><code class="sig-name descname">gpytorch_kernel_wrapper</code><span class="sig-paren">(</span><em class="sig-param">x1</em>, <em class="sig-param">x2</em>, <em class="sig-param">kernel</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.kernel_utils.gpytorch_kernel_wrapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.kernel_utils.load_kernel_matrix">
+<code class="sig-prename descclassname">alpfore.utils.kernel_utils.</code><code class="sig-name descname">load_kernel_matrix</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.kernel_utils.load_kernel_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a precomputed kernel matrix from disk.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.kernel_utils.transform_with_kpca">
+<code class="sig-prename descclassname">alpfore.utils.kernel_utils.</code><code class="sig-name descname">transform_with_kpca</code><span class="sig-paren">(</span><em class="sig-param">kpca</em>, <em class="sig-param">K_test_train</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.kernel_utils.transform_with_kpca" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use fitted KPCA object to transform test points using test-train kernel matrix.</p>
+<p>Parameters:
+- kpca: fitted KernelPCA object
+- K_test_train: ndarray, shape (n_test, n_train)</p>
+<p>Returns:
+- transformed_test: shape (n_test, n_components)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-alpfore.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="alpfore.utils.make_labeled_dataset">
+<code class="sig-prename descclassname">alpfore.utils.</code><code class="sig-name descname">make_labeled_dataset</code><span class="sig-paren">(</span><em class="sig-param">candidate_list: List[Tuple], ddg_results: List[Tuple[float, float]]</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#alpfore.utils.make_labeled_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a labeled dataset with features + ddG + SEM.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.save_labeled_dataset">
+<code class="sig-prename descclassname">alpfore.utils.</code><code class="sig-name descname">save_labeled_dataset</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">path: pathlib.Path</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.save_labeled_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save labeled dataset to CSV with header.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.load_labeled_dataset">
+<code class="sig-prename descclassname">alpfore.utils.</code><code class="sig-name descname">load_labeled_dataset</code><span class="sig-paren">(</span><em class="sig-param">path: pathlib.Path</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#alpfore.utils.load_labeled_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load labeled dataset from CSV.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.append_new_data">
+<code class="sig-prename descclassname">alpfore.utils.</code><code class="sig-name descname">append_new_data</code><span class="sig-paren">(</span><em class="sig-param">previous: pandas.core.frame.DataFrame</em>, <em class="sig-param">new: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#alpfore.utils.append_new_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append new evaluation data to prior labeled dataset.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.compute_kernel_matrix">
+<code class="sig-prename descclassname">alpfore.utils.</code><code class="sig-name descname">compute_kernel_matrix</code><span class="sig-paren">(</span><em class="sig-param">X1</em>, <em class="sig-param">X2</em>, <em class="sig-param">kernel_func</em>, <em class="sig-param">save_dir=None</em>, <em class="sig-param">prefix='kernel'</em>, <em class="sig-param">verbose=True</em>, <em class="sig-param">Y_train=None</em>, <em class="sig-param">clamp_var=1e-06</em>, <em class="sig-param">model=None</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.compute_kernel_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes full kernel matrix between X1 and X2 in one shot using the provided kernel_func.
+Also optionally computes posterior means/variances and saves everything to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X1</strong> (<em>np.ndarray</em>) – </p></li>
+<li><p><strong>X2</strong> (<em>np.ndarray</em>) – </p></li>
+<li><p><strong>kernel_func</strong> (<em>GPyTorch kernel</em>) – </p></li>
+<li><p><strong>save_dir</strong> (<em>str</em><em> or </em><em>Path</em>) – </p></li>
+<li><p><strong>prefix</strong> (<em>str</em>) – </p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>Y_train</strong> (<em>torch.Tensor</em><em> or </em><em>None</em>) – </p></li>
+<li><p><strong>clamp_var</strong> (<em>float</em>) – </p></li>
+<li><p><strong>model</strong> (<em>GP model</em><em> (</em><em>to unstandardize predictions</em><em>)</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>K_full</strong> (<em>torch.Tensor</em>) – Full kernel matrix of shape (len(X1), len(X2))</p></li>
+<li><p><strong>means</strong> (<em>torch.Tensor or None</em>) – Posterior mean predictions (only if Y_train is provided)</p></li>
+<li><p><strong>vars_</strong> (<em>torch.Tensor or None</em>) – Posterior variances (only if Y_train is provided)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.load_kernel_matrix">
+<code class="sig-prename descclassname">alpfore.utils.</code><code class="sig-name descname">load_kernel_matrix</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.load_kernel_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a precomputed kernel matrix from disk.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.compute_kernel_pca">
+<code class="sig-prename descclassname">alpfore.utils.</code><code class="sig-name descname">compute_kernel_pca</code><span class="sig-paren">(</span><em class="sig-param">K_train_train</em>, <em class="sig-param">n_components=2</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.compute_kernel_pca" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform kernel PCA given a precomputed train-train kernel matrix.</p>
+<p>Parameters:
+- K_train_train: ndarray, shape (n_train, n_train)
+- n_components: int, number of KPCs to retain</p>
+<p>Returns:
+- kpca: fitted KernelPCA object
+- transformed_train: shape (n_train, n_components)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.utils.transform_with_kpca">
+<code class="sig-prename descclassname">alpfore.utils.</code><code class="sig-name descname">transform_with_kpca</code><span class="sig-paren">(</span><em class="sig-param">kpca</em>, <em class="sig-param">K_test_train</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.utils.transform_with_kpca" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use fitted KPCA object to transform test points using test-train kernel matrix.</p>
+<p>Parameters:
+- kpca: fitted KernelPCA object
+- K_test_train: ndarray, shape (n_test, n_train)</p>
+<p>Returns:
+- transformed_test: shape (n_test, n_components)</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ALPine_FOREst</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">alpfore</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="alpfore.html">alpfore package</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">alpfore</a><ul>
+  <li><a href="alpfore.html">alpfore package</a><ul>
+      <li>Previous: <a href="alpfore.trajectories.html" title="previous chapter">alpfore.trajectories package</a></li>
+      <li>Next: <a href="contributing.html" title="next chapter">&lt;no title&gt;</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, Nicholas Herringer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/alpfore.utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

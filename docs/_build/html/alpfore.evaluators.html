@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>alpfore.evaluators package &#8212; ALPine_FOREst 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="alpfore.loaders package" href="alpfore.loaders.html" />
+    <link rel="prev" title="alpfore.encoder package" href="alpfore.encoder.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="alpfore-evaluators-package">
+<h1>alpfore.evaluators package<a class="headerlink" href="#alpfore-evaluators-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-alpfore.evaluators.ddG">
+<span id="alpfore-evaluators-ddg-module"></span><h2>alpfore.evaluators.ddG module<a class="headerlink" href="#module-alpfore.evaluators.ddG" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.evaluators.ddG.DeltaDeltaGEvaluator">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.evaluators.ddG.</code><code class="sig-name descname">DeltaDeltaGEvaluator</code><span class="sig-paren">(</span><em class="sig-param">system_features: Tuple[float, ...], run_dir: Union[str, pathlib.Path], cv_cutoff: Optional[numpy.ndarray] = None, walker_ids: Sequence[int] = (1,), bandwidth: float = 1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.evaluators.ddG.DeltaDeltaGEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="alpfore.core.html#alpfore.core.evaluator.BaseEvaluator" title="alpfore.core.evaluator.BaseEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">alpfore.core.evaluator.BaseEvaluator</span></code></a></p>
+<dl class="method">
+<dt id="alpfore.evaluators.ddG.DeltaDeltaGEvaluator.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">traj: COLVARTrajectory</em>, <em class="sig-param">cv_cutoff: int = 20</em>, <em class="sig-param">cv_col: str = 'cv'</em>, <em class="sig-param">energy_col: str = 'energy'</em>, <em class="sig-param">bias_col: str = 'bias'</em>, <em class="sig-param">time_col: str = 'time'</em><span class="sig-paren">)</span> &#x2192; Tuple[float, float]<a class="headerlink" href="#alpfore.evaluators.ddG.DeltaDeltaGEvaluator.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>traj</strong> – Trajectory returned by a Simulation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Shape <code class="docutils literal notranslate"><span class="pre">(n_frames,</span> <span class="pre">self.output_dim)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="alpfore.evaluators.ddG.DeltaDeltaGEvaluator.output_dim">
+<code class="sig-name descname">output_dim</code><em class="property"> = 2</em><a class="headerlink" href="#alpfore.evaluators.ddG.DeltaDeltaGEvaluator.output_dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.evaluators.dna_hybridization">
+<span id="alpfore-evaluators-dna-hybridization-module"></span><h2>alpfore.evaluators.dna_hybridization module<a class="headerlink" href="#module-alpfore.evaluators.dna_hybridization" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="alpfore.evaluators.dna_hybridization.CGDNAHybridizationEvaluator">
+<em class="property">class </em><code class="sig-prename descclassname">alpfore.evaluators.dna_hybridization.</code><code class="sig-name descname">CGDNAHybridizationEvaluator</code><span class="sig-paren">(</span><em class="sig-param">gd_long: int</em>, <em class="sig-param">gd_short: int</em>, <em class="sig-param">short_length: int</em>, <em class="sig-param">long_length: int</em>, <em class="sig-param">sticky_length: int</em>, <em class="sig-param">walker: int = 1</em><span class="sig-paren">)</span><a class="headerlink" href="#alpfore.evaluators.dna_hybridization.CGDNAHybridizationEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="alpfore.core.html#alpfore.core.evaluator.BaseEvaluator" title="alpfore.core.evaluator.BaseEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">alpfore.core.evaluator.BaseEvaluator</span></code></a></p>
+<p>Counts anti-parallel (“legal”) and parallel (“illegal”) sticky-strand
+hybridisations for each frame of a trajectory.</p>
+<dl class="attribute">
+<dt id="alpfore.evaluators.dna_hybridization.CGDNAHybridizationEvaluator.output_dim">
+<code class="sig-name descname">output_dim</code><em class="property"> = 2</em><a class="headerlink" href="#alpfore.evaluators.dna_hybridization.CGDNAHybridizationEvaluator.output_dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.evaluators.dna_hybridization.compute_cv_cutoff">
+<code class="sig-prename descclassname">alpfore.evaluators.dna_hybridization.</code><code class="sig-name descname">compute_cv_cutoff</code><span class="sig-paren">(</span><em class="sig-param">traj: Union[str, pandas.core.frame.DataFrame, List[Tuple[str, int, int, int]]], system_features: Optional[Tuple[str, int, int, int]] = None, legal_thresh: float = 0.8, write_path: Union[str, pathlib.Path, None] = None, base_dir: Union[str, pathlib.Path] = '../DFP_ActiveLearning/2.Calc_ddG'</em><span class="sig-paren">)</span> &#x2192; Union[int, pandas.core.frame.DataFrame]<a class="headerlink" href="#alpfore.evaluators.dna_hybridization.compute_cv_cutoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <cite>traj</cite> is a string or DataFrame, compute cutoff for a single system.
+If <cite>traj</cite> is a list of tuples (candidate list), compute cutoffs for each system.
+If <cite>write_path</cite> is given, write resulting table of CV cutoffs to disk.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alpfore.evaluators.dna_hybridization.evaluate">
+<code class="sig-prename descclassname">alpfore.evaluators.dna_hybridization.</code><code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">trj: mdtraj.core.trajectory.Trajectory</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#alpfore.evaluators.dna_hybridization.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-alpfore.evaluators">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-alpfore.evaluators" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ALPine_FOREst</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">alpfore</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="alpfore.html">alpfore package</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">alpfore</a><ul>
+  <li><a href="alpfore.html">alpfore package</a><ul>
+      <li>Previous: <a href="alpfore.encoder.html" title="previous chapter">alpfore.encoder package</a></li>
+      <li>Next: <a href="alpfore.loaders.html" title="next chapter">alpfore.loaders package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, Nicholas Herringer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/alpfore.evaluators.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

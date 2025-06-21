@@ -1,4 +1,6 @@
 # src/alpfore/utils/kernel_utils.py
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 from botorch.models import FixedNoiseGP
 import numpy as np
 from sklearn.decomposition import KernelPCA
