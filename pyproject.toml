@@ -29,3 +29,8 @@ testpaths = ["tests"]
 
 [tool.poetry.scripts]
 alpfore = "alpfore.cli:app"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
