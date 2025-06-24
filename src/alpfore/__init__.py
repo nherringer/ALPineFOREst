@@ -24,7 +24,7 @@ import sys
 #         setattr(sys.modules[__name__], name_parts[1], module)
 
 # Auto-discover all submodules
-from . import encoder, loaders, evaluators, pipeline, utils, models
+from . import encoder, loaders, evaluators, pipeline, utils, models, candidate_selectors
 from .pipeline import Pipeline
 from .utils.dataset_utils import (
     make_labeled_dataset,
