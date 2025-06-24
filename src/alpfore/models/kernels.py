@@ -2,26 +2,45 @@ import torch
 from gpytorch.kernels import Kernel, RBFKernel, ScaleKernel
 from gpytorch.priors import GammaPrior
 import numpy as np
+from .lazy_tensors import TanimotoLazyTensor
+
+def forward(self, x1, x2, **params):
+    if x1.dim() > 2:
+        x1 = x1.squeeze(1)
+    if x2.dim() > 2:
+        x2 = x2.squeeze(1)
+
+    # Efficient pairwise Tanimoto similarity
+    x1 = x1.float()
+    x2 = x2.float()
+    x1_sq = (x1 ** 2).sum(dim=1).unsqueeze(1)  # [N, 1]
+    x2_sq = (x2 ** 2).sum(dim=1).unsqueeze(0)  # [1, M]
+    dot = x1 @ x2.T                            # [N, M]
+    tanimoto = dot / (x1_sq + x2_sq - dot + 1e-6)
+    distance = 1.0 - tanimoto
+
+    return torch.exp(-distance / self.lengthscale)
 
 class TanimotoKernel(Kernel):
     """Implements the Tanimoto similarity kernel for binary sequence vectors."""
     has_lengthscale = True
 
     def forward(self, x1, x2, **params):
-        # Handle potential 3D input by squeezing
         if x1.dim() > 2:
-            x1 = x1.squeeze(1)
+           x1 = x1.squeeze(1)
         if x2.dim() > 2:
-            x2 = x2.squeeze(1)
+           x2 = x2.squeeze(1)
 
-        dot = torch.matmul(x1, x2.T)
-        norm_x1 = torch.sum(x1**2, dim=-1, keepdim=True)
-        norm_x2 = torch.sum(x2**2, dim=-1, keepdim=True).T
-        tanimoto = dot / (norm_x1 + norm_x2 - dot + 1e-6)
+        # Efficient pairwise Tanimoto similarity
+        x1 = x1.float()
+        x2 = x2.float()
+        x1_sq = (x1 ** 2).sum(dim=1).unsqueeze(1)  # [N, 1]
+        x2_sq = (x2 ** 2).sum(dim=1).unsqueeze(0)  # [1, M]
+        dot = x1 @ x2.T                            # [N, M]
+        tanimoto = dot / (x1_sq + x2_sq - dot + 1e-6)
         distance = 1.0 - tanimoto
 
-        return torch.exp(-distance / self.lengthscale)
-
+    	return TanimotoLazyTensor(torch.exp(-distance / self.lengthscale))
 
 class CustomKernel(Kernel):
     """Product kernel combining RBFs for scalar features and a Tanimoto kernel for sequences."""
@@ -55,6 +74,13 @@ class CustomKernel(Kernel):
         # Defensive check
         if x1.shape[-1] < 5 or x2.shape[-1] < 5:
             raise ValueError(f"Expected input feature dim ≥ 5, but got shapes {x1.shape} and {x2.shape}")
+
+	x1_ssl, x1_lsl, x1_sgd, x1_seqL, x1_seq = (
+     	    x1["ssl"], x1["lsl"], x1["sgd"], x1["seqL"], x1["seq"]
+    	)
+    	x2_ssl, x2_lsl, x2_sgd, x2_seqL, x2_seq = (
+            x2["ssl"], x2["lsl"], x2["sgd"], x2["seqL"], x2["seq"]
+    	)
 
         # Split features
         x1_ssl, x1_lsl, x1_sgd, x1_seqL, x1_seq = (
