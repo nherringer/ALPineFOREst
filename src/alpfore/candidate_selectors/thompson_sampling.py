@@ -60,77 +60,119 @@ def run_stratified_batched_ts(model, candidate_set, batch_size=1000, k_per_batch
 
     return candidate_set[torch.tensor(selected_inds)]
 
-def run_global_nystrom_ts(kernel, inducing_points, candidate_set, k_global, train_X, train_Y, excluded_ids=None):
+def run_global_nystrom_ts(kernel, inducing_points, candidate_set, num_samples,
+                          train_X=None, train_Y=None, batch_size=50000):
     """
-    Thompson Sampling with global Nyström approximation.
+    Thompson sampling using Nyström approximation with compute_kernel_matrix.
 
-    Parameters
-    ----------
-    kernel : GPyTorch kernel
-    inducing_points : torch.Tensor, shape [M, d]
-    candidate_set : torch.Tensor, shape [N, d]
-    k_global : int
-    train_X : torch.Tensor, shape [n, d]
-    train_Y : torch.Tensor, shape [n]
-    excluded_ids : Optional[Set[int]] of candidate indices to ignore
+    Args:
+        kernel: callable kernel (used by compute_kernel_matrix)
+        inducing_points: [M, D] inducing set
+        candidate_set: [N, D] candidate/test set
+        num_samples: number of Thompson samples to draw
+        train_X: unused
+        train_Y: unused
+        batch_size: batch size to use for computing K_NM
 
-    Returns
-    -------
-    selected_indices : List[int]
+    Returns:
+        samples: [num_samples, N] sampled function values over candidate_set
     """
-    N = candidate_set.shape[0]
+    device = candidate_set.device
+    N, D = candidate_set.shape
     M = inducing_points.shape[0]
 
-    # Compute kernel matrices using compute_kernel_matrix()
-    K_NM, *_ = compute_kernel_matrix(candidate_set, inducing_points, kernel)   # [N, M]
-    K_MM, *_ = compute_kernel_matrix(inducing_points, inducing_points, kernel) # [M, M]
-    K_TM, *_ = compute_kernel_matrix(train_X, inducing_points, kernel)         # [n, M]
+    with torch.no_grad():
+        # Step 1: Compute kernel matrices
+        K_MM = compute_kernel_matrix(inducing_points, inducing_points, kernel)  # [M, M]
+        K_NM = compute_kernel_matrix(candidate_set, inducing_points, kernel, batch_size=batch_size)  # [N, M]
 
-    # Regularize and invert K_MM
-    jitter = 1e-6
-    K_MM_inv = torch.linalg.pinv(K_MM + jitter * torch.eye(M))
+        # Step 2: Stabilize and invert K_MM
+        jitter = 1e-6 * torch.eye(M, device=device)
+        K_MM += jitter
+        L_MM = torch.linalg.cholesky(K_MM)
+        K_MM_inv_root = torch.cholesky_inverse(L_MM)
 
-    K_MM_inv = K_MM_inv.float()
-    K_TM = K_TM.float()
-    train_Y = train_Y.float()
+        # Step 3: Sample in low-rank space
+        Z = torch.randn(num_samples, M, device=device)  # [S, M]
 
-    # alpha = K_MM_inv @ K_TM.T @ train_Y
-    alpha = K_MM_inv @ K_TM.T @ train_Y  # [M]
+        # Step 4: Project to candidate space
+        K_proj = K_NM @ K_MM_inv_root                     # [N, M]
+        samples = torch.einsum('nm,sm->sn', K_proj, Z)    # [S, N]
 
-    # Mean and Covariance
-    mean_N = K_NM @ alpha                # [N]
-    cov_N = K_NM @ K_MM_inv @ K_NM.T     # [N, N]
-    cov_N_reg = cov_N + jitter * torch.eye(N)
-
-# Defensive reshape if needed
-    if mean_N.ndim > 1:
-        mean_N = mean_N.squeeze()
-    if cov_N_reg.ndim > 2:
-        cov_N_reg = cov_N_reg.squeeze()
-
-    # Confirm shape: mean [N], cov [N, N]
-    assert mean_N.ndim == 1, f"Expected mean_N to be 1D but got {mean_N.shape}"
-    assert cov_N_reg.ndim == 2, f"Expected cov_N_reg to be 2D but got {cov_N_reg.shape}"
-    assert cov_N_reg.shape[0] == cov_N_reg.shape[1] == mean_N.shape[0], "Covariance shape mismatch"
-
-    # Sample from posterior
-    mvn = MultivariateNormal(mean_N.detach(), cov_N_reg.detach())
-    f_samples = mvn.rsample(sample_shape=torch.Size([k_global]))  # [k_global, N]
+    return samples
 
 
-
-    # Exclusion logic
-    excluded_ids = set(excluded_ids) if excluded_ids is not None else set()
-    selected_indices = []
-
-    for i in range(k_global):
-        sample_i = f_samples[i].clone()
-        sample_i[list(excluded_ids)] = float('-inf')
-        top_idx = torch.argmax(sample_i).item()
-        selected_indices.append(top_idx)
-        excluded_ids.add(top_idx)
-
-    return candidate_set[selected_indices]
+#def run_global_nystrom_ts(kernel, inducing_points, candidate_set, k_global, train_X, train_Y, excluded_ids=None):
+#    """
+#    Thompson Sampling with global Nyström approximation.
+#
+#    Parameters
+#    ----------
+#    kernel : GPyTorch kernel
+#    inducing_points : torch.Tensor, shape [M, d]
+#    candidate_set : torch.Tensor, shape [N, d]
+#    k_global : int
+#    train_X : torch.Tensor, shape [n, d]
+#    train_Y : torch.Tensor, shape [n]
+#    excluded_ids : Optional[Set[int]] of candidate indices to ignore
+#
+#    Returns
+#    -------
+#    selected_indices : List[int]
+#    """
+#    N = candidate_set.shape[0]
+#    M = inducing_points.shape[0]
+#
+#    # Compute kernel matrices using compute_kernel_matrix()
+#    K_NM, *_ = compute_kernel_matrix(candidate_set, inducing_points, kernel)   # [N, M]
+#    K_MM, *_ = compute_kernel_matrix(inducing_points, inducing_points, kernel) # [M, M]
+#    K_TM, *_ = compute_kernel_matrix(train_X, inducing_points, kernel)         # [n, M]
+#
+#    # Regularize and invert K_MM
+#    jitter = 1e-6
+#    K_MM_inv = torch.linalg.pinv(K_MM + jitter * torch.eye(M))
+#
+#    K_MM_inv = K_MM_inv.float()
+#    K_TM = K_TM.float()
+#    train_Y = train_Y.float()
+#
+#    # alpha = K_MM_inv @ K_TM.T @ train_Y
+#    alpha = K_MM_inv @ K_TM.T @ train_Y  # [M]
+#
+#    # Mean and Covariance
+#    mean_N = K_NM @ alpha                # [N]
+#    cov_N = K_NM @ K_MM_inv @ K_NM.T     # [N, N]
+#    cov_N_reg = cov_N + jitter * torch.eye(N)
+#
+## Defensive reshape if needed
+#    if mean_N.ndim > 1:
+#        mean_N = mean_N.squeeze()
+#    if cov_N_reg.ndim > 2:
+#        cov_N_reg = cov_N_reg.squeeze()
+#
+#    # Confirm shape: mean [N], cov [N, N]
+#    assert mean_N.ndim == 1, f"Expected mean_N to be 1D but got {mean_N.shape}"
+#    assert cov_N_reg.ndim == 2, f"Expected cov_N_reg to be 2D but got {cov_N_reg.shape}"
+#    assert cov_N_reg.shape[0] == cov_N_reg.shape[1] == mean_N.shape[0], "Covariance shape mismatch"
+#
+#    # Sample from posterior
+#    mvn = MultivariateNormal(mean_N.detach(), cov_N_reg.detach())
+#    f_samples = mvn.rsample(sample_shape=torch.Size([k_global]))  # [k_global, N]
+#
+#
+#
+#    # Exclusion logic
+#    excluded_ids = set(excluded_ids) if excluded_ids is not None else set()
+#    selected_indices = []
+#
+#    for i in range(k_global):
+#        sample_i = f_samples[i].clone()
+#        sample_i[list(excluded_ids)] = float('-inf')
+#        top_idx = torch.argmax(sample_i).item()
+#        selected_indices.append(top_idx)
+#        excluded_ids.add(top_idx)
+#
+#    return candidate_set[selected_indices]
 
 
 #def run_global_nystrom_ts(kernel, inducing_points, candidate_set, k_global, train_X, train_Y):
