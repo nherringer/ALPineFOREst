@@ -43,11 +43,11 @@ def run_stratified_batched_ts(model, candidate_set, batch_size=1000, k_per_batch
                 topk_local = idxs[np.argsort(f_values[idxs])[-topk:]]
 
                 # Extend with indices rather than X_batch values
-                selected_inds.extend(topk_local)
+                selected_inds.extend((i + topk_local).tolist())
                 selected_counts[seqlen] = already_selected + topk
         else:
             topk_idx = torch.topk(f_sample, k=min(k_per_batch, f_sample.shape[0])).indices
-            selected_inds.extend(topk_idx)
+            selected_inds.extend((i + topk_idx).tolist())
 
 #                topk = min(remaining_quota, len(idxs))
 #                topk_local = idxs[np.argsort(f_values[idxs])[-topk:]]
@@ -58,7 +58,7 @@ def run_stratified_batched_ts(model, candidate_set, batch_size=1000, k_per_batch
 #            topk_idx = torch.topk(f_sample, k=min(k_per_batch, f_sample.shape[0])).indices
 #            selected.extend(X_batch[topk_idx].tolist())
 
-    return candidate_set[selected_inds]
+    return candidate_set[torch.tensor(selected_inds)]
 
 def run_global_nystrom_ts(kernel, inducing_points, candidate_set, k_global, train_X, train_Y, excluded_ids=None):
     """
@@ -82,13 +82,17 @@ def run_global_nystrom_ts(kernel, inducing_points, candidate_set, k_global, trai
     M = inducing_points.shape[0]
 
     # Compute kernel matrices using compute_kernel_matrix()
-    K_NM = compute_kernel_matrix(candidate_set, inducing_points, kernel)   # [N, M]
-    K_MM = compute_kernel_matrix(inducing_points, inducing_points, kernel) # [M, M]
-    K_TM = compute_kernel_matrix(train_X, inducing_points, kernel)         # [n, M]
+    K_NM, *_ = compute_kernel_matrix(candidate_set, inducing_points, kernel)   # [N, M]
+    K_MM, *_ = compute_kernel_matrix(inducing_points, inducing_points, kernel) # [M, M]
+    K_TM, *_ = compute_kernel_matrix(train_X, inducing_points, kernel)         # [n, M]
 
     # Regularize and invert K_MM
     jitter = 1e-6
     K_MM_inv = torch.linalg.pinv(K_MM + jitter * torch.eye(M))
+
+    K_MM_inv = K_MM_inv.float()
+    K_TM = K_TM.float()
+    train_Y = train_Y.float()
 
     # alpha = K_MM_inv @ K_TM.T @ train_Y
     alpha = K_MM_inv @ K_TM.T @ train_Y  # [M]

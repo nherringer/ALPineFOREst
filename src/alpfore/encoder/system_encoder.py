@@ -75,7 +75,6 @@ class SystemEncoder:
         one_hot = self._one_hot_seq(seq)
         return np.concatenate([meta, one_hot])
 
-    @classmethod
     def decode(self, X: np.ndarray) -> np.ndarray:
         """
         Inverts `encode`.
@@ -100,7 +99,9 @@ class SystemEncoder:
         meta_scaled, one_hot = X[:, :4], X[:, 4:]
 
         # ---------- un-scale meta ----------
-        rng = self.scales  # config["scales"]
+        print(self)
+        print(type(self))
+        rng = self.scales
 
         def _unscale(key, v):
             lo, hi = rng[key]["min"], rng[key]["max"]

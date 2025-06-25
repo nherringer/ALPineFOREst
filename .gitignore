@@ -36,3 +36,7 @@ venv/
 *.lammpstrj
 *.traj
 cv_cutoffs.csv
+HAT_m2.sbatch
+get_cands.py
+prod_m3_amd.sbatch
+set0ddgs.csv
