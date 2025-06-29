@@ -6,59 +6,128 @@ from gpytorch.distributions import MultivariateNormal
 from alpfore.utils.kernel_utils import compute_kernel_matrix, gpytorch_kernel_wrapper
 
 
-def run_stratified_batched_ts(model, candidate_set, batch_size=1000, k_per_batch=1, k_per_seqlen=None, stratify_set=False):
-    selected_inds = []
-    N = candidate_set.shape[0]
+import torch
+import numpy as np
+from typing import Union
 
-    if stratify_set:
-        seqlens_all = candidate_set[:, 3].cpu().numpy()
-        sort_idx = np.argsort(seqlens_all)
-        candidate_set = candidate_set[sort_idx]
+def run_stratified_batched_ts(
+    model,
+    candidate_set: torch.Tensor,
+    batch_size: int = 1000,
+    k_per_seqlen: Union[int, list] = 5,
+    seqlen_col: int = 3,
+    stratify_set: bool = True,
+    seqlen_round_decimals: int = 3,
+    seed: int = None
+):
+    """
+    Stratified batched Thompson sampling.
 
-    # Round and scale seqlens to use as discrete keys
-    selected_counts = {}
-    scale = 1000  # or whatever scale matches seqlen granularity
+    Parameters
+    ----------
+    model : GPyTorch model
+        The GP model with a `.posterior()` method.
+    candidate_set : torch.Tensor
+        Candidate set of shape [N, d].
+    batch_size : int
+        Number of candidates to evaluate at a time.
+    k_per_seqlen : int or list
+        How many final selections to return per seqlen group.
+    seqlen_col : int
+        Column index where seqlen is stored.
+    stratify_set : bool
+        Whether to group candidates by seqlen.
+    seqlen_round_decimals : int
+        Decimal precision to round seqlens to when grouping.
+    seed : int or None
+        Seed for reproducibility.
 
-    for i in range(0, N, batch_size):
-        X_batch = candidate_set[i:i + batch_size]
-        posterior = model.posterior(X_batch)
-        f_sample = posterior.rsample(sample_shape=torch.Size([1]))[0].squeeze()
+    Returns
+    -------
+    torch.Tensor
+        Final selected candidates of shape [sum(k_per_seqlen), d].
+    """
+    if seed is not None:
+        np.random.seed(seed)
+        torch.manual_seed(seed)
 
-        if k_per_seqlen is not None:
-            seqlens = np.round(X_batch[:, 3].cpu().numpy(), decimals=3)
-            seqlens_int = (seqlens * scale).astype(int)
-            f_values = f_sample.detach().cpu().numpy()
+    selected_all = []
+    device = candidate_set.device
+    seqlens_raw = candidate_set[:, seqlen_col].cpu().numpy()
+    seqlens_rounded = np.round(seqlens_raw, decimals=seqlen_round_decimals)
 
-            for seqlen in np.unique(seqlens_int):
-                mask = seqlens_int == seqlen
-                idxs = np.where(mask)[0]
+    # Unique seqlens and group indices
+    unique_seqlens = np.unique(seqlens_rounded)
 
-                already_selected = selected_counts.get(seqlen, 0)
-                remaining_quota = max(0, k_per_seqlen - already_selected)
+    if isinstance(batch_size, int):
+        batch_dict = {s: batch_size for s in unique_seqlens}
+    elif isinstance(batch_size, list) and len(batch_size) == len(unique_seqlens):
+        batch_dict = dict(zip(unique_seqlens, batch_size))
+    e    candidate_set: torch.Tensor,
+    batch_size: int = 1000,
+    k_per_seqlen: Union[int, list] = 5,
+    seqlen_col: int = 3,
+    stratify_set: bool = True,
+    seqlen_round_decimals: int = 3,
+    seed: int = Nonelse:
+        raise ValueError("batch_size must be an int or a list of same length as number of unique seqlens")
 
-                if remaining_quota == 0 or len(idxs) == 0:
-                    continue
 
-                topk = min(remaining_quota, len(idxs))
-                topk_local = idxs[np.argsort(f_values[idxs])[-topk:]]
+    if isinstance(batch_size, int):
+        batch_dict = {s: batch_size for s in unique_seqlens}
+    elif isinstance(batch_size, list) and len(batch_size) == len(unique_seqlens):
+        batch_dict = dict(zip(unique_seqlens, batch_size))
+    else:
+        raise ValueError("batch_size must be an int or a list of same length as number of unique seqlens")
 
-                # Extend with indices rather than X_batch values
-                selected_inds.extend((i + topk_local).tolist())
-                selected_counts[seqlen] = already_selected + topk
-        else:
-            topk_idx = torch.topk(f_sample, k=min(k_per_batch, f_sample.shape[0])).indices
-            selected_inds.extend((i + topk_idx).tolist())
 
-#                topk = min(remaining_quota, len(idxs))
-#                topk_local = idxs[np.argsort(f_values[idxs])[-topk:]]
-#
-#                selected.extend(X_batch[topk_local].tolist())
-#                selected_counts[seqlen] = already_selected + topk
-#        else:
-#            topk_idx = torch.topk(f_sample, k=min(k_per_batch, f_sample.shape[0])).indices
-#            selected.extend(X_batch[topk_idx].tolist())
+    if isinstance(k_per_seqlen, int):
+        k_dict = {s: k_per_seqlen for s in unique_seqlens}
+    elif isinstance(k_per_seqlen, list) and len(k_per_seqlen) == len(unique_seqlens):
+        k_dict = dict(zip(unique_seqlens, k_per_seqlen))
+    else:
+        raise ValueError("k_per_seqlen must be an int or a list of length equal to number of unique seqlens")
 
-    return candidate_set[torch.tensor(selected_inds)]
+    for seqlen in unique_seqlens:
+        # Indices of candidates with this seqlen
+        mask = seqlens_rounded == seqlen
+        X_seqlen = candidate_set[mask]
+        print(f"Batching seqlen: {seqlen}")
+        # --- Round 1: batch-wise greedy selection ---
+        batch_winners = []
+        batch_sz = batch_dict[seqlen]
+        for i in range(0, X_seqlen.shape[0], batch_sz):
+            X_batch = X_seqlen[i:i+batch_sz]
+            posterior = model.posterior(X_batch)
+            f_sample = posterior.rsample(sample_shape=torch.Size([1]))[0].squeeze()
+            if f_sample.dim() == 0:
+                best_idx = 0
+            else:
+                best_idx = torch.argmax(f_sample).item()
+            batch_winners.append(X_batch[best_idx])
+
+        # Stack winners into tensor
+        winners_tensor = torch.stack(batch_winners, dim=0)
+
+        # --- Round 2: Thompson sampling on batch winners ---
+        n_to_select = k_dict[seqlen]
+        winners_remaining = winners_tensor.clone()
+        selected_for_this_seqlen = []
+
+        for _ in range(n_to_select):
+            posterior = model.posterior(winners_remaining)
+            f_sample = posterior.rsample(sample_shape=torch.Size([1]))[0].squeeze()
+            best_idx = torch.argmax(f_sample).item()
+            selected_for_this_seqlen.append(winners_remaining[best_idx])
+            winners_remaining = torch.cat([
+                winners_remaining[:best_idx],
+                winners_remaining[best_idx+1:]
+            ], dim=0)
+
+        selected_all.extend(selected_for_this_seqlen)
+
+    return torch.stack(selected_all, dim=0)
+
 
 def run_global_nystrom_ts(kernel, inducing_points, candidate_set, k_global, train_X, train_Y, excluded_ids=None):
     """
@@ -131,41 +200,6 @@ def run_global_nystrom_ts(kernel, inducing_points, candidate_set, k_global, trai
         excluded_ids.add(top_idx)
 
     return candidate_set[selected_indices]
-
-
-#def run_global_nystrom_ts(kernel, inducing_points, candidate_set, k_global, train_X, train_Y):
-#    """
-#    Perform global Thompson Sampling using Nyström kernel approximation.
-#    """
-#    # Compute kernel matrices
-#    K_NM = compute_kernel_matrix(candidate_set, inducing_points, kernel)
-#    K_MM = compute_kernel_matrix(inducing_points, inducing_points, kernel)
-#
-#    # Invert K_MM (or use Cholesky solve)
-#    K_MM_inv = np.linalg.pinv(K_MM + 1e-6 * np.eye(K_MM.shape[0]))  # regularization for stability
-#
-#    # Compute approximate mean: mu_N = K_NM K_MM_inv alpha
-#    # where alpha = K_train_train^{-1} Y (assuming train_X = inducing_points)
-#    # If train_X != inducing_points, use a separate K_TM
-#    K_TM = compute_kernel_matrix(inducing_points, train_X, kernel)
-#    K_TT = compute_kernel_matrix(train_X, train_X, kernel)
-#    alpha = np.linalg.solve(K_TT + 1e-6 * np.eye(K_TT.shape[0]), train_Y)
-#    mean_N = K_NM @ K_MM_inv @ K_TM @ alpha
-#    # Compute approximate covariance: K_NN_approx = K_NM K_MM^{-1} K_MN
-#    K_MN = K_NM.T
-#    cov_N = K_NM @ K_MM_inv @ K_MN
-#    # Sample from the approximate posterior
-#    cov_N = 0.5 * (cov_N + cov_N.T)
-#    jitter = 1e-5 * torch.eye(cov_N.shape[0], device=cov_N.device)
-#    cov_N_reg = cov_N + jitter
-#    
-#    mvn = MultivariateNormal(mean_N.detach(), cov_N_reg.detach())
-#    f_sample = mvn.rsample(sample_shape=torch.Size([1]))[0, 0]  # shape: [N]
-#
-#    # Select top-k candidates
-#    topk_indices = torch.topk(f_sample, k_global).indices
-#    selected = [candidate_set[i] for i in topk_indices]
-#    return selected
 
 
 def select_ts_candidates(model, candidate_set, inducing_points,
