@@ -13,7 +13,7 @@ from typing import Union
 def run_stratified_batched_ts(
     model,
     candidate_set: torch.Tensor,
-    batch_size: int = 1000,
+    batch_size: Union[int, list] = 1000,
     k_per_seqlen: Union[int, list] = 5,
     seqlen_col: int = 3,
     stratify_set: bool = True,
@@ -58,20 +58,6 @@ def run_stratified_batched_ts(
 
     # Unique seqlens and group indices
     unique_seqlens = np.unique(seqlens_rounded)
-
-    if isinstance(batch_size, int):
-        batch_dict = {s: batch_size for s in unique_seqlens}
-    elif isinstance(batch_size, list) and len(batch_size) == len(unique_seqlens):
-        batch_dict = dict(zip(unique_seqlens, batch_size))
-    e    candidate_set: torch.Tensor,
-    batch_size: int = 1000,
-    k_per_seqlen: Union[int, list] = 5,
-    seqlen_col: int = 3,
-    stratify_set: bool = True,
-    seqlen_round_decimals: int = 3,
-    seed: int = Nonelse:
-        raise ValueError("batch_size must be an int or a list of same length as number of unique seqlens")
-
 
     if isinstance(batch_size, int):
         batch_dict = {s: batch_size for s in unique_seqlens}
@@ -173,13 +159,13 @@ def run_global_nystrom_ts(kernel, inducing_points, candidate_set, num_samples,
 
 def select_ts_candidates(model, candidate_set, inducing_points,
                           kernel, train_X, train_Y, k2,
-                          strat_batch_size=1000, k_per_batch=1, k_per_seqlen=None, stratify_set=False):
+                          strat_batch_size=1000, k_per_seqlen=None, stratify_set=True):
     """
     Combines stratified batched TS with global TS from Nyström posterior.
     """
     stratified_candidates = run_stratified_batched_ts(
         model, candidate_set, batch_size=strat_batch_size,
-        k_per_batch=k_per_batch, k_per_seqlen=k_per_seqlen, stratify_set=stratify_set
+        k_per_seqlen=k_per_seqlen, stratify_set=stratify_set
     )
     print(np.shape(np.asarray(stratified_candidates)))
     global_candidates = run_global_nystrom_ts(kernel, inducing_points, candidate_set, k2, train_X, train_Y)
