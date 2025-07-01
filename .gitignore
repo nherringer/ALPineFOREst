@@ -10,7 +10,7 @@ __pycache__/
 *.ipynb
 
 # Numpy binary files
-fulldesignspace3311280.npy #*.npy
+fulldesignspace3311280.npy
 *.npz
 
 # OS / Editor junk
