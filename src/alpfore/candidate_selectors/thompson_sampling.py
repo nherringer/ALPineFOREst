@@ -156,7 +156,6 @@ def run_global_nystrom_ts(kernel, inducing_points, candidate_set, num_samples,
 
     return samples
 
-
 def select_ts_candidates(model, candidate_set, inducing_points,
                           kernel, train_X, train_Y, k2,
                           strat_batch_size=1000, k_per_seqlen=None, stratify_set=True):
