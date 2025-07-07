@@ -6,7 +6,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 __author__ = """Nicholas Herringer"""
 __email__ = "nherringer@uchicago.edu"
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 # src/alpfore/__init__.py
 import pkgutil
