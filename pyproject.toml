@@ -29,4 +29,3 @@ testpaths = ["tests"]
 
 [tool.poetry.scripts]
 alpfore = "alpfore.cli:app"
-

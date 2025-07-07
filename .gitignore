@@ -11,6 +11,7 @@ __pycache__/
 
 # Numpy binary files
 fulldesignspace3311280.npy
+*.npy
 *.npz
 
 # OS / Editor junk
@@ -36,6 +37,7 @@ venv/
 *.lammpstrj
 *.traj
 cv_cutoffs.csv
+<<<<<<< HEAD
 HAT_m2.sbatch
 get_cands.py
 prod_m3_amd.sbatch
