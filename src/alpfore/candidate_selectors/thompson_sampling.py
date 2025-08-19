@@ -125,9 +125,9 @@ def run_global_nystrom_ts(kernel, inducing_points, candidate_set, num_samples,
         inducing_points: [M, D] inducing set
         candidate_set: [N, D] candidate/test set
         num_samples: number of Thompson samples to draw
-        train_X: unused
-        train_Y: unused
-        batch_size: batch size to use for computing K_NM
+        train_X: Input data for pretested datapoints
+        train_Y: Output data for pretested datapoints
+        batch_size: batch size to use for computing K_XstarXbar
 
     Returns:
         samples: [num_samples, N] sampled function values over candidate_set
@@ -135,25 +135,35 @@ def run_global_nystrom_ts(kernel, inducing_points, candidate_set, num_samples,
     device = candidate_set.device
     N, D = candidate_set.shape
     M = inducing_points.shape[0]
+    num_tested = train_X.shape[0]
 
     with torch.no_grad():
         # Step 1: Compute kernel matrices
-        K_MM = compute_kernel_matrix(inducing_points, inducing_points, kernel)  # [M, M]
-        K_NM = compute_kernel_matrix(candidate_set, inducing_points, kernel, batch_size=batch_size)  # [N, M]
+        K_XbarXbar = compute_kernel_matrix(inducing_points, inducing_points, kernel)[0]  # [M, M]
+        print("Inducing point kernel calculated")
+        K_XstarXbar = compute_kernel_matrix(candidate_set, inducing_points, kernel, prefix="K_XstarXbar",save_dir=".", batch_size=batch_size)[0]  # [N, M]
+        print("K_X*Xbar calculated") 
+        K_XX = compute_kernel_matrix(train_X, train_X, kernel)[0] # [num_tested, num_tested]
+        print("K_XX computed")
+        K_XXstart = compute_kernel_matrix(candidate_set, train_X, kernel)[0] # [num_tested, N]
+        print("Kernels computed")
 
         # Step 2: Stabilize and invert K_MM
-        jitter = 1e-6 * torch.eye(M, device=device)
-        K_MM += jitter
-        L_MM = torch.linalg.cholesky(K_MM)
-        K_MM_inv_root = torch.cholesky_inverse(L_MM)
+        jitter = 1e-6 * torch.eye(num_tested, device=device)
+        K_XX_inv = torch.inverse(K_XX+jitter)
+        mu = K_XXstar.t @ K_XX_inv @ train_Y
+        # SVD of K_XstarXbar:
+        U_Xstar, S, U_Xbart = torch.linalg.svd(X, full_matrices=False)
+        S_inv = 1/S
+        var = (K_XstarXbar @ U_Xbart.t @ torch.diag(S_inv)@U_Xbart) - K_XXstar.t @ K_XX_inv @ K_XXstar
+        var_A = torch.linalg.cholesky(A)
+        print("New sampling params calculated")
 
         # Step 3: Sample in low-rank space
-        Z = torch.randn(num_samples, M, device=device)  # [S, M]
+        Z = torch.randn(num_samples, N, device=device)  # [S, M]
 
         # Step 4: Project to candidate space
-        K_proj = K_NM @ K_MM_inv_root                     # [N, M]
-        samples = torch.einsum('nm,sm->sn', K_proj, Z)    # [S, N]
-
+        samples = mu + torch.einsum('ij,sj->si', var_A, Z) # [S, N]
     return samples
 
 def select_ts_candidates(model, candidate_set, inducing_points,

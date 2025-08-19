@@ -55,21 +55,25 @@ def compute_kernel_matrix(
 
     N = X1.shape[0]
     M = X2.shape[0]
-    K_full = torch.empty((N, M), device=X1.device)
-
-    # Compute K(X1, X2) in batches
-    for i in range(0, N, batch_size):
-        end = min(i + batch_size, N)
-        with torch.no_grad():
-            K_full[i:end] = kernel_func(X1[i:end], X2).evaluate()
+    if save_dir is not None:
+        K_memmap = np.memmap(f"{prefix}_kernel.npy", dtype=np.float32, mode="w+", shape=(N, M))
+        K_full = f"{prefix}_kernel.npy"
+        for i in range(0, N, batch_size):
+            end = min(i + batch_size, N)
+            with torch.no_grad():
+                K_batch = kernel_func(X1[i:end], X2).evaluate().cpu().numpy()
+            K_memmap[i:end] = K_batch  # writes directly to disk
+    else:
+        K_full = torch.empty((N, M), device=X1.device, dtype=torch.half)
+        # Compute K(X1, X2) in batches
+        for i in range(0, N, batch_size):
+            end = min(i + batch_size, N)
+            with torch.no_grad():
+                K_full[i:end] = kernel_func(X1[i:end], X2).evaluate()
 
     means, vars_ = None, None
-
-    # Save kernel if requested
-    if save_dir is not None:
-        k_path = Path(save_dir) / f"{prefix}_full.pt"
-        torch.save(K_full, k_path)
-
+    return K_full, means, vars
+    """
     if Y_train is not None:
         try:
             K_train_train = torch.load(Path(save_dir) / f"{prefix}_train_train.pt")
@@ -104,7 +108,7 @@ def compute_kernel_matrix(
         print(f"[compute_kernel_matrix_torch] Done.")
 
     return K_full, means, vars_
-
+    """
 #def compute_kernel_matrix(X1, X2, kernel_func, save_dir=None, prefix="kernel",
 #                          verbose=True, Y_train=None, clamp_var=1e-6, model=None):
 #    """
