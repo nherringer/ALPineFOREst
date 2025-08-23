@@ -75,7 +75,6 @@ class SystemEncoder:
         one_hot = self._one_hot_seq(seq)
         return np.concatenate([meta, one_hot])
 
-    @classmethod
     def decode(self, X: np.ndarray) -> np.ndarray:
         """
         Inverts `encode`.
