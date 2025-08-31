@@ -1,11 +1,13 @@
 from .thompson_sampling import (
-    run_stratified_batched_ts,
+    run_nystrom_ts_top1_online,
+    nystrom_posterior_weights,
     run_global_nystrom_ts,
-    select_ts_candidates,
+    thompson_unique_multi_draw,
 )
 
 __all__ = [
-    "run_stratified_batched_ts",
-    "run_global_nystrom_ts",
-    "select_ts_candidates",
+    "run_nystrom_ts_top1_online"
+    "nystrom_posterior_weights"
+    "run_global_nystrom_ts"
+    "thompson_unique_multi_draw",
 ]
