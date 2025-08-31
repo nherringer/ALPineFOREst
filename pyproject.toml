@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "alpfore"
-version = "0.1.5"
+version = "0.1.6"
 description = "Active Learning Pipeline For Optimal Ranking Estimation"
 authors = ["Nicholas Herringer <nherringer@uchicago.edu>"]
 readme = "README.md"
